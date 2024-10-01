@@ -1,0 +1,28 @@
+// styles/globals.scss
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+    --background: #ffffff;
+    --foreground: #000000;
+    --primary: #143b7e;
+    --primary-dark: #0c1a38;
+    --primary-light: #3263c9;
+    --secondary: #f4f4f4;
+    --secondary-light: #ff8e00;
+}
+
+[data-theme='dark'] {
+    --background: #0c1a38;
+    --foreground: #ffffff;
+    --secondary: #1a2a4a;
+}
+
+body {
+    font-family: var(--font-inter);
+    background-color: var(--background);
+    color: var(--foreground);
+}
+
+// Puedes agregar más estilos globales aquí
