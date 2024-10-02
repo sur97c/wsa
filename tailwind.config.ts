@@ -21,11 +21,17 @@ const config: Config = {
           DEFAULT: "var(--primary)",
           dark: "var(--primary-dark)",
           light: "var(--primary-light)",
+          hover: "var(--primary-hover)",
+          form: "var(--primary-form)",
         },
         secondary: {
           DEFAULT: "var(--secondary)",
-          light: "var(--secondary-light)"
+          dark: "var(--secondary-dark)",
+          light: "var(--secondary-light)",
         },
+        light: "var(--light)",
+        dark: "var(--dark)",
+        white: "var(--white)",
       },
       fontSize: {
         lg: '24px',
