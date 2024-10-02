@@ -28,9 +28,9 @@ export default function Navigation() {
     );
 
     return (
-        <nav className="bg-lightsecondary bg-opacity-80 p-4">
+        <nav className="bg-secondary-light bg-opacity-80 p-4 shadow-lg">
             <div className="container mx-auto flex justify-between items-center">
-                <div className="text-dark text-lg font-bold hover:text-primaryhover">
+                <div className="text-dark text-lg font-bold hover:text-primary-hover">
                     <Link href="/">WSA Broker</Link>
                 </div>
                 <div className="hidden md:flex space-x-4">
@@ -38,7 +38,7 @@ export default function Navigation() {
                         <Link
                             key={role.key}
                             href={`/${role.key}`}
-                            className={`text-dark hover:text-primaryhover ${
+                            className={`text-dark hover:text-primary-hover ${
                                 pathname === `/${role.key}` ? 'text-primary font-extrabold' : ''
                             }`}
                         >
@@ -58,7 +58,7 @@ export default function Navigation() {
                         <Link
                             key={role.key}
                             href={`/${role.key}`}
-                            className={`block py-2 text-dark hover:text-primaryhover ${
+                            className={`block py-2 text-dark hover:text-primary-hover ${
                                 pathname === `/${role.key}` ? 'text-primary font-extrabold' : ''
                             }`}
                             onClick={() => setIsOpen(false)}

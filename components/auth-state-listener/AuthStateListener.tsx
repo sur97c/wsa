@@ -102,15 +102,15 @@ export function AuthStateListener({ children }: { children: React.ReactNode }) {
     return (
         <>
             {isDialogVisible && (
-                <div className={classNames(styles['session-dialog'], 'bg-lightsecondary text-white flex flex-col justify-center items-center')}>
+                <div className={classNames(styles['session-dialog'], 'bg-secondary-light text-white flex flex-col justify-center items-center')}>
                     <p>La sesión está por expirar en {timeLeft} segundos.</p>
                     <div className='flex justify-between'>
-                        <button onClick={() => setIsDialogVisible(false)} className={'m-4 p-2 rounded bg-primary text-light hover:bg-secondary'}>Extender sesión</button>
+                        <button onClick={() => setIsDialogVisible(false)} className={'m-4 p-2 rounded bg-primary text-light hover:bg-primary-hover'}>Extender sesión</button>
                         <button onClick={() => {
                             dispatch(logout());
                             auth.signOut();
                             setIsDialogVisible(false);
-                        }} className={'m-4 p-2 rounded bg-primary text-white hover:bg-secondary'}>Cerrar sesión</button>
+                        }} className={'m-4 p-2 rounded bg-primary text-white hover:bg-primary-hover'}>Cerrar sesión</button>
                     </div>
                 </div>
             )

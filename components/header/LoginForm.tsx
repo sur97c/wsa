@@ -1,15 +1,15 @@
-// login-form.tsx
-"use client";
+// components/header/LoginForm.tsx
+"use client"
 
-import React, { useState } from 'react';
-import { useAppDispatch, useAppSelector } from "@store/store";
-import { loginUser, logoutUser, recoverAccess } from "@store/slices/authSlice";
+import React, { useState } from 'react'
+import { useAppDispatch, useAppSelector } from "@lib/redux/store"
+import { loginUser, recoverAccess } from "@lib/redux/slices/authSlice"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSignInAlt, faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import '@fortawesome/fontawesome-svg-core/styles.css'
-import LoadingButton from '@components/common/loading-button/LoadingButton ';
-import { FlipCard } from '@components/common/flip-card/FlipCard';
-import { useFlip } from '@providers/flip-provider';
+import LoadingButton from '@components/loading-button/LoadingButton'
+import { FlipCard } from '@components/flip-card/FlipCard'
+import { useFlip } from '@providers/flip-provider'
 
 interface FlipCardProps {
     onTransitionEnd?: () => void;
@@ -28,11 +28,6 @@ const LoginForm: React.FC<FlipCardProps> = ({ }) => {
         e.preventDefault();
         dispatch(loginUser({ email, password, rememberMe }));
     };
-
-    // const handleLogoutUser = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-    //     dispatch(logoutUser());
-    // };
 
     const handleRecoverAccess = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -77,7 +72,7 @@ const LoginForm: React.FC<FlipCardProps> = ({ }) => {
                         </div>
                         <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 mt-2">
                             <div className="flex justify-center md:flex md:justify-start md:flex-1 w-full">
-                                <label className="cursor-pointer md:flex-none text-primary hover:text-lightsecondary">
+                                <label className="cursor-pointer md:flex-none text-primary hover:text-secondary-light">
                                     <input
                                         type="checkbox"
                                         checked={rememberMe}
@@ -89,7 +84,7 @@ const LoginForm: React.FC<FlipCardProps> = ({ }) => {
                             </div>
                             <div className="flex justify-center md:flex md:justify-start md:flex-1 w-full">
                                 <div className="md:flex-none">
-                                    <span onClick={handleToggleFlip} className="cursor-pointer text-sm text-primary hover:text-lightsecondary">
+                                    <span onClick={handleToggleFlip} className="cursor-pointer text-sm text-primary hover:text-secondary-light">
                                         Recuperar acceso
                                     </span>
                                 </div>
@@ -100,7 +95,7 @@ const LoginForm: React.FC<FlipCardProps> = ({ }) => {
                         <LoadingButton
                             type="submit"
                             aria-label={loading ? "Iniciando sesión" : "Iniciar sesión"}
-                            className="bg-primary text-white py-2 px-4 rounded hover:bg-secondary w-full md:w-auto flex items-center justify-center"
+                            className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-hover w-full md:w-auto flex items-center justify-center"
                             faIcon={faSignInAlt}
                             loading={loading}
                         />
@@ -131,7 +126,7 @@ const LoginForm: React.FC<FlipCardProps> = ({ }) => {
                                 type="button"
                                 onClick={handleRecoverAccess}
                                 aria-label={loading ? "Enviando email" : "Enviar email"}
-                                className="bg-primary text-white py-2 px-4 rounded hover:bg-secondary w-full md:w-auto flex items-center justify-center"
+                                className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-hover w-full md:w-auto flex items-center justify-center"
                                 faIcon={faPaperPlane}
                                 loading={loading}
                             />
@@ -140,7 +135,7 @@ const LoginForm: React.FC<FlipCardProps> = ({ }) => {
                     <button
                         type="button"
                         onClick={handleToggleFlip}
-                        className="text-primary hover:text-lightsecondary flex items-center mt-2"
+                        className="text-primary hover:text-secondary-light flex items-center mt-2"
                         aria-label='Volver al login'
                     >
                         <FontAwesomeIcon
