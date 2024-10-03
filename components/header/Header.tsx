@@ -17,10 +17,10 @@ import Navigation from "@components/navigation/Navigation"
 
 export default function Header() {
     const [isLoginOpen, setIsLoginOpen] = useState(false);
-    const { isAuthenticated, user } = useAppSelector((state: RootState) => state.auth);
     const { isFlipped, toggleFlip } = useFlip();
     const [isLoadingPage, setIsLoadingPage] = useState(true);
 
+    const auth = useAppSelector((state: RootState) => state.auth.auth);
     const dispatch = useAppDispatch();
     const { loading, error } = useAppSelector((state) => state.auth);
 
@@ -51,7 +51,7 @@ export default function Header() {
                             width={16}
                             height={16}
                             priority={true}
-                            className={`transition-all duration-500 ${isLoginOpen && !isAuthenticated ? "w-32 h-32" : "w-16 h-16"}`}
+                            className={`transition-all duration-500 ${isLoginOpen && auth && !auth?.isAuthenticated ? "w-32 h-32" : "w-16 h-16"}`}
                         />
                         <div className="ml-4">
                             <ThemeToggle />
@@ -65,14 +65,14 @@ export default function Header() {
                                 <>
                                     {error && <p className="flex justify-center mt-2 text-red-500">{error}</p>}
                                     {
-                                        isAuthenticated ? (
+                                        auth && auth?.isAuthenticated ? (
                                             <div>
                                                 <div className="flex justify-center text-primary">
                                                     <Link href="/profile" className="ml-4 text-primary hover:text-secondary-light flex flex-row items-center space-x-2">
                                                         <FontAwesomeIcon icon={faUserCircle} size="2x" />
                                                         <div className="flex flex-col">
-                                                            <h2>Bienvenido {user?.profile?.name}</h2>
-                                                            <span>{user?.email}</span>
+                                                            <h2>Bienvenido {auth?.name || auth?.displayName || 'Usuario'}</h2>
+                                                            <span>{auth?.email}</span>
                                                         </div>
                                                     </Link>
                                                     <div className="flex flex-row justify-center space-x-2 ml-4">
@@ -116,7 +116,7 @@ export default function Header() {
                     </div>
                 </nav>
             </header>
-            {isAuthenticated && <Navigation />}
+            {auth && auth?.isAuthenticated && <Navigation />}
         </>
     );
 }

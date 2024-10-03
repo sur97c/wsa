@@ -1,3 +1,4 @@
+// lib/redux/store.ts
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
 import authReducer from "@lib/redux/slices/authSlice";
@@ -8,7 +9,7 @@ import { FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist
 const authPersistConfig = {
     key: "auth",
     storage: storage,
-    whitelist: ["authState"],
+    whitelist: ["auth"],
 };
 
 const rootReducer = combineReducers({

@@ -1,45 +1,59 @@
+// lib/redux/slices/authSlice.ts
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import { auth } from "@lib/firebase/firebase"
 import { signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "firebase/auth"
 import { FirebaseError } from "firebase/app"
-import { getDocumentData } from "@actions/firestoreActions"
+import { getFirestoreData } from "@actions/getFirestoreData"
 import { IAuthState } from "@models/IAuthState"
 import { IProfile } from "@models/IProfile"
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
-const initialState: IAuthState = {
-    isAuthenticated: false,
-    user: null,
-    rememberMe: false,
-    lastActivity: null,
+const initialState: {
+    auth: IAuthState | null;
+    loading: boolean;
+    error: string | null;
+} = {
+    auth: null,
     loading: false,
     error: null,
-};
+}
 
-const DELAY_TIME: number = 0;
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const DELAY_TIME: number = 0
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export const loginUser = createAsyncThunk(
     'auth/loginUser',
     async (credentials: { email: string; password: string; rememberMe: boolean }, thunkAPI) => {
-        const { email, password, rememberMe } = credentials;
+        const { email, password, rememberMe } = credentials
         try {
-            await delay(DELAY_TIME);
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            const userProfile = await getDocumentData<IProfile>('users', user.uid);
-            const token = await user.getIdTokenResult();
-            localStorage.setItem('rememberMe', rememberMe.toString());
-            login({ uid: user.uid, email: email, rememberMe });
-            return {
+            await delay(DELAY_TIME)
+
+            const userCredential = await signInWithEmailAndPassword(auth, email, password)
+            const user = userCredential.user
+            const userProfile = await getFirestoreData<IProfile>('users', user.uid, true)
+
+            // localStorage.setItem('rememberMe', rememberMe.toString())
+            login({ uid: user.uid, email: email, rememberMe })
+
+            const authState: IAuthState = {
                 uid: user.uid,
                 email: user.email || '',
                 displayName: user.displayName || '',
-                customClaims: token.claims,
-                profile: userProfile,
-                rememberMe: rememberMe
-            };
+                disabled: userProfile?.disabled || true,
+                firebaseId: userProfile?.firebaseId || '',
+                lastName: userProfile?.lastName || '',
+                name: userProfile?.name || '',
+                roles: userProfile?.roles || [],
+                isAuthenticated: true,
+                rememberMe,
+                lastActivity: Date.now(),
+                customClaims: userProfile?.customClaims
+            }
+
+            console.log('User profile fetched:', userProfile) // Log para debug
+            return authState
         } catch (error) {
             if (error instanceof FirebaseError) {
                 let message;
@@ -108,51 +122,37 @@ export const authSlice = createSlice({
     initialState,
     reducers: {
         login: (state, action) => {
-            state.isAuthenticated = true;
-            state.user = action.payload.user;
-            if (state.user) {
-                state.user.customClaims = action.payload.customClaims;
-                state.user.profile = action.payload.profile;
-            }
-            state.rememberMe = action.payload.rememberMe;
-            state.lastActivity = Date.now();
+            state.auth = action.payload;
             state.loading = false;
+            state.error = null;
         },
         logout: (state) => {
-            state.isAuthenticated = false;
-            state.user = null;
-            state.rememberMe = false;
-            state.lastActivity = Date.now();
+            state.auth = null;
             state.loading = false;
+            state.error = null;
         },
         updateLastActivity: (state) => {
-            state.lastActivity = Date.now();
-            state.loading = false;
+            if (state.auth) {
+                state.auth.lastActivity = Date.now();
+            }
         },
     },
     extraReducers: (builder) => {
         builder
             // Login cases
             .addCase(loginUser.pending, (state) => {
-                state.error = null;
                 state.loading = true;
+                state.error = null;
             })
             .addCase(loginUser.fulfilled, (state, action) => {
-                state.isAuthenticated = true;
-                if (state.user) {
-                    state.user.uid = action.payload.uid;
-                    state.user.email = action.payload.email;
-                    state.user.displayName = action.payload.displayName;
-                    state.user.customClaims = action.payload.customClaims;
-                    state.user.profile = action.payload.profile;
-                }
-                state.rememberMe = action.payload.rememberMe;
-                state.lastActivity = Date.now();
+                state.auth = action.payload;
                 state.loading = false;
+                state.error = null;
+                console.log('State after login:', state); // Log para debug
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                state.error = action.error.message || 'An error occurred';
             })
 
             // Logout cases
@@ -160,15 +160,13 @@ export const authSlice = createSlice({
                 state.loading = true;
             })
             .addCase(logoutUser.fulfilled, (state) => {
-                state.isAuthenticated = false;
-                state.user = null;
-                state.rememberMe = false;
-                state.lastActivity = Date.now();
+                state.auth = null;
                 state.loading = false;
+                state.error = null;
             })
             .addCase(logoutUser.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                state.error = action.error.message || 'An error occurred';
             })
 
             // Recover access cases
@@ -182,10 +180,10 @@ export const authSlice = createSlice({
             })
             .addCase(recoverAccess.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                state.error = action.error.message || 'An error occurred';
             });
     },
 });
 
-export const { login, logout, updateLastActivity } = authSlice.actions; // ToBe used by AuthStateListener component
+export const { login, logout, updateLastActivity } = authSlice.actions;
 export default authSlice.reducer;

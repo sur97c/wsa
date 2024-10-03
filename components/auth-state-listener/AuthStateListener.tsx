@@ -4,48 +4,26 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { RootState, useAppSelector } from '@lib/redux/store';
-import { auth } from '@lib/firebase/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { login, logout, updateLastActivity } from '@lib/redux/slices/authSlice';
-import { getDocumentData } from '@actions/firestoreActions';
+import { logout, updateLastActivity } from '@lib/redux/slices/authSlice';
 import styles from './AuthStateListener.module.scss';
 import classNames from 'classnames';
-import { IProfile } from '@models/IProfile';
+import { useAuthListener } from '@hooks/useAuthListener.ts';
+import { auth } from '@lib/firebase/firebase';
 
 export function AuthStateListener({ children }: { children: React.ReactNode }) {
-    const dispatch = useDispatch();
-    const { isAuthenticated, rememberMe, lastActivity } = useAppSelector((state: RootState) => state.auth);
     const [isDialogVisible, setIsDialogVisible] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const shouldRemember = localStorage.getItem('rememberMe') === 'true';
-                const userProfile = await getDocumentData<IProfile>('users', user.uid);
-                const token = await user.getIdTokenResult();
-                dispatch(login({
-                    user: {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName
-                    },
-                    customClaims: token.claims,
-                    profile: userProfile,
-                    rememberMe: shouldRemember
-                }));
-            } else {
-                dispatch(logout());
-            }
-        });
-        return () => unsubscribe();
-    }, [dispatch]);
+    const authState = useAppSelector((state: RootState) => state.auth.auth);
+    const dispatch = useDispatch();
+
+    useAuthListener();
 
     useEffect(() => {
         const checkSessionTimeout = () => {
-            if (isAuthenticated && !rememberMe) {
+            if (authState && authState?.isAuthenticated && !authState?.rememberMe) {
                 const currentTime = Date.now();
-                const timeSinceLastActivity = currentTime - (lastActivity ?? currentTime);
+                const timeSinceLastActivity = currentTime - (authState?.lastActivity ?? currentTime);
 
                 if (timeSinceLastActivity > Number(process.env.NEXT_PUBLIC_SESSION_TIMEOUT) - Number(process.env.NEXT_PUBLIC_DIALOG_TIMEOUT)) {
                     setIsDialogVisible(true);
@@ -61,7 +39,7 @@ export function AuthStateListener({ children }: { children: React.ReactNode }) {
 
         const intervalId = setInterval(checkSessionTimeout, 1000);
         return () => clearInterval(intervalId);
-    }, [dispatch, isAuthenticated, rememberMe, lastActivity]);
+    }, [dispatch, authState]);
 
     useEffect(() => {
         let countdownInterval: NodeJS.Timeout;
@@ -85,7 +63,7 @@ export function AuthStateListener({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const handleActivity = () => {
-            if (isAuthenticated) {
+            if (authState && authState?.isAuthenticated) {
                 dispatch(updateLastActivity());
             }
         };
@@ -97,7 +75,7 @@ export function AuthStateListener({ children }: { children: React.ReactNode }) {
             window.removeEventListener('mousemove', handleActivity);
             window.removeEventListener('keydown', handleActivity);
         };
-    }, [dispatch, isAuthenticated, isDialogVisible]);
+    }, [dispatch, authState?.isAuthenticated, isDialogVisible]);
 
     return (
         <>

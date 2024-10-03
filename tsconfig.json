@@ -21,6 +21,7 @@
     "paths": {
       "@actions/*": ["./actions/*"],
       "@app/*": ["./app/*"],
+      "@hooks/*": ["./hooks/*"],
       "@components/*": ["./components/*"],
       "@lib/*": ["./lib/*"],
       "@providers/*": ["./providers/*"],

@@ -12,18 +12,22 @@ import { Roles } from '@models/Roles';
 export default function Navigation() {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
-    const { isAuthenticated, user } = useAppSelector((state: RootState) => state.auth);
-    const userRoles = user?.customClaims?.roles ? 
-        ((user.customClaims.roles as unknown) as string).split(',') : 
-        [];
+    const auth = useAppSelector((state: RootState) => state.auth.auth);
+    // const userRoles = user?.profile?.customClaims?.roles ? 
+    //     ((user.profile.customClaims.roles as unknown) as string).split(',') : 
+    //     [];
+    const userRoles = (auth?.customClaims?.roles as string)
+    // userRoles ?
+    //     (userRoles as string).split(',') :
+    //     [];
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
 
-    const filteredRoles = Roles.filter(role => 
-        isAuthenticated && (
-            userRoles.includes(role.key) || role.key === 'home'
+    const filteredRoles = Roles.filter(role =>
+        auth?.isAuthenticated && (
+            userRoles?.includes(role.key) || role.key === 'home'
         )
     );
 
@@ -38,9 +42,8 @@ export default function Navigation() {
                         <Link
                             key={role.key}
                             href={`/${role.key}`}
-                            className={`text-dark hover:text-primary-hover ${
-                                pathname === `/${role.key}` ? 'text-primary font-extrabold' : ''
-                            }`}
+                            className={`text-dark hover:text-primary-hover ${pathname === `/${role.key}` ? 'text-primary font-extrabold' : ''
+                                }`}
                         >
                             {role.menuLabel}
                         </Link>
@@ -58,9 +61,8 @@ export default function Navigation() {
                         <Link
                             key={role.key}
                             href={`/${role.key}`}
-                            className={`block py-2 text-dark hover:text-primary-hover ${
-                                pathname === `/${role.key}` ? 'text-primary font-extrabold' : ''
-                            }`}
+                            className={`block py-2 text-dark hover:text-primary-hover ${pathname === `/${role.key}` ? 'text-primary font-extrabold' : ''
+                                }`}
                             onClick={() => setIsOpen(false)}
                         >
                             {role.menuLabel}

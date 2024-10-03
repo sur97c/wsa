@@ -1,12 +1,14 @@
 // models/IAuthState.ts
 
-import { IUser } from "./IUser";
+import { ParsedToken } from "firebase/auth"
+import { IProfile } from "./IProfile"
+import { IUser } from "./IUser"
 
-export interface IAuthState {
+export interface IAuthState extends IUser, IProfile {
     isAuthenticated: boolean;
-    user: IUser | null;
+    customClaims?: ParsedToken | null | undefined;
     rememberMe: boolean;
     lastActivity: number | null;
-    loading: boolean;
-    error: string | null;
+    // loading: boolean;
+    // error: string | null;
 }
