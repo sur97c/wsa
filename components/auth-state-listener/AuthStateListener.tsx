@@ -1,99 +1,141 @@
 // components/auth-state-listener/AuthStateListener.tsx
+
 'use client'
 
-import { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { RootState, useAppSelector } from '@lib/redux/store';
-import { logout, updateLastActivity } from '@lib/redux/slices/authSlice';
-import styles from './AuthStateListener.module.scss';
-import classNames from 'classnames';
-import { useAuthListener } from '@hooks/useAuthListener.ts';
-import { auth } from '@lib/firebase/firebase';
+import { useState, useEffect, useCallback } from 'react'
+import { RootState, useAppDispatch, useAppSelector } from '@lib/redux/store'
+import { logoutUser, updateLastActivity, checkUserStatus } from '@lib/redux/slices/authSlice'
+import { useAuthListener } from '@hooks/useAuthListener.ts'
+import { useSafeRouter } from "@hooks/useSafeRouter"
+import { useTranslations } from '@hooks/useTranslations'
+import Notification from '@components/notification/Notification'
+import { faClock, faUserSlash } from '@fortawesome/free-solid-svg-icons'
 
 export function AuthStateListener({ children }: { children: React.ReactNode }) {
-    const [isDialogVisible, setIsDialogVisible] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(0);
+    const { t, translations } = useTranslations()
+    const { safeNavigate } = useSafeRouter()
+    const [isSessionTimeoutDialogVisible, setIsSessionTimeoutDialogVisible] = useState(false)
+    const [isDisabledDialogVisible, setIsDisabledDialogVisible] = useState(false)
 
-    const authState = useAppSelector((state: RootState) => state.auth.auth);
-    const dispatch = useDispatch();
+    const [timeLeft, setTimeLeft] = useState(0)
 
-    useAuthListener();
+    const authState = useAppSelector((state: RootState) => state.auth.auth)
+    const dispatch = useAppDispatch()
+
+    useAuthListener()
+
+    const handleLogout = useCallback(async () => {
+        dispatch(logoutUser())
+        setIsSessionTimeoutDialogVisible(false)
+        safeNavigate(`/`, true)
+    }, [dispatch, safeNavigate])
+
+    const handleExtendSession = () => {
+        setIsSessionTimeoutDialogVisible(false)
+        dispatch(updateLastActivity())
+    }
 
     useEffect(() => {
         const checkSessionTimeout = () => {
-            if (authState && authState?.isAuthenticated && !authState?.rememberMe) {
-                const currentTime = Date.now();
-                const timeSinceLastActivity = currentTime - (authState?.lastActivity ?? currentTime);
+            if (authState && authState.isAuthenticated && !authState.rememberMe) {
+                const currentTime = Date.now()
+                const timeSinceLastActivity = currentTime - (authState?.lastActivity ?? currentTime)
 
                 if (timeSinceLastActivity > Number(process.env.NEXT_PUBLIC_SESSION_TIMEOUT) - Number(process.env.NEXT_PUBLIC_DIALOG_TIMEOUT)) {
-                    setIsDialogVisible(true);
-                    setTimeLeft(Math.floor((Number(process.env.NEXT_PUBLIC_SESSION_TIMEOUT) - timeSinceLastActivity) / 1000));
+                    setIsSessionTimeoutDialogVisible(true)
+                    setTimeLeft(Math.floor((Number(process.env.NEXT_PUBLIC_SESSION_TIMEOUT) - timeSinceLastActivity) / 1000))
                 }
 
                 if (timeSinceLastActivity > Number(process.env.NEXT_PUBLIC_SESSION_TIMEOUT)) {
-                    dispatch(logout());
-                    auth.signOut();
+                    handleLogout()
                 }
             }
-        };
-
-        const intervalId = setInterval(checkSessionTimeout, 1000);
-        return () => clearInterval(intervalId);
-    }, [dispatch, authState]);
-
-    useEffect(() => {
-        let countdownInterval: NodeJS.Timeout;
-
-        if (isDialogVisible && timeLeft > 0) {
-            countdownInterval = setInterval(() => {
-                setTimeLeft((prevTime) => prevTime - 1);
-            }, 1000);
         }
-
-        if (timeLeft === 0 && isDialogVisible) {
-            dispatch(logout());
-            auth.signOut();
-            if (isDialogVisible) {
-                setIsDialogVisible(false);
+        const checkUserStatusAndUpdate = async () => {
+            if (authState && authState.isAuthenticated) {
+                try {
+                    const result = await dispatch(checkUserStatus(authState.uid)).unwrap()
+                    if (result.disabled) {
+                        setIsDisabledDialogVisible(true)
+                    }
+                } catch (error) {
+                    console.error('Error al verificar el estado del usuario:', error)
+                }
             }
         }
 
-        return () => clearInterval(countdownInterval);
-    }, [isDialogVisible, timeLeft, dispatch]);
+        const sessionIntervalId = setInterval(checkSessionTimeout, 1000)
+        const statusIntervalId = setInterval(checkUserStatusAndUpdate, 60000)
+        return () => {
+            clearInterval(sessionIntervalId)
+            clearInterval(statusIntervalId)
+        }
+
+    }, [dispatch, authState, handleLogout])
+
+    useEffect(() => {
+        let countdownInterval: NodeJS.Timeout
+
+        if (isSessionTimeoutDialogVisible && timeLeft > 0) {
+            countdownInterval = setInterval(() => {
+                setTimeLeft((prevTime) => prevTime - 1)
+            }, 1000)
+        }
+
+        if (timeLeft === 0 && isSessionTimeoutDialogVisible) {
+            handleLogout()
+        }
+
+        return () => clearInterval(countdownInterval)
+    }, [isSessionTimeoutDialogVisible, timeLeft, dispatch, handleLogout])
 
     useEffect(() => {
         const handleActivity = () => {
             if (authState && authState?.isAuthenticated) {
-                dispatch(updateLastActivity());
+                dispatch(updateLastActivity())
             }
-        };
+        }
 
-        window.addEventListener('mousemove', handleActivity);
-        window.addEventListener('keydown', handleActivity);
+        window.addEventListener('mousemove', handleActivity)
+        window.addEventListener('keydown', handleActivity)
 
         return () => {
-            window.removeEventListener('mousemove', handleActivity);
-            window.removeEventListener('keydown', handleActivity);
-        };
-    }, [dispatch, authState?.isAuthenticated, isDialogVisible]);
+            window.removeEventListener('mousemove', handleActivity)
+            window.removeEventListener('keydown', handleActivity)
+        }
+    }, [dispatch, authState, authState?.isAuthenticated])
 
     return (
         <>
-            {isDialogVisible && (
-                <div className={classNames(styles['session-dialog'], 'bg-secondary-light text-white flex flex-col justify-center items-center')}>
-                    <p>La sesión está por expirar en {timeLeft} segundos.</p>
-                    <div className='flex justify-between'>
-                        <button onClick={() => setIsDialogVisible(false)} className={'m-4 p-2 rounded bg-primary text-light hover:bg-primary-hover'}>Extender sesión</button>
-                        <button onClick={() => {
-                            dispatch(logout());
-                            auth.signOut();
-                            setIsDialogVisible(false);
-                        }} className={'m-4 p-2 rounded bg-primary text-white hover:bg-primary-hover'}>Cerrar sesión</button>
-                    </div>
-                </div>
-            )
-            }
+            {isSessionTimeoutDialogVisible && (
+                <Notification
+                    icon={faClock}
+                    iconColor="text-primary"
+                    title={t(translations.authStateListener.title)}
+                    message={t(translations.authStateListener.message, { timeLeft: timeLeft.toString() })}
+                    primaryButtonText={t(translations.authStateListener.extendSession)}
+                    secondaryButtonText={t(translations.authStateListener.closeSession)}
+                    onPrimaryButtonClick={handleExtendSession}
+                    onSecondaryButtonClick={handleLogout}
+                />
+            )}
+            {isDisabledDialogVisible && (
+                <Notification
+                    icon={faUserSlash}
+                    iconColor="text-primary"
+                    title={t(translations.authStateListener.title)}
+                    message={t(translations.authStateListener.message, { timeLeft: timeLeft.toString() })}
+                    primaryButtonText={t(translations.authStateListener.extendSession)}
+                    secondaryButtonText={t(translations.authStateListener.closeSession)}
+                    onPrimaryButtonClick={handleExtendSession}
+                    onSecondaryButtonClick={handleLogout}
+                />
+            )}
             {children}
         </>
-    );
+    )
+}
+
+export function useAuthState() {
+    return useAppSelector((state: RootState) => state.auth.auth);
 }
