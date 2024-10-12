@@ -1,7 +1,9 @@
-import React from 'react';
+// components/loading-button/LoadingButton.tsx
+
+import React from 'react'
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 
 interface LoadingButtonProps {
     loading: boolean;
@@ -27,7 +29,7 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
             type={type}
             onClick={onClick}
             aria-label={ariaLabel || label}
-            className={`bg-primary text-white py-2 px-4 rounded hover:bg-primary-hover w-full md:w-auto flex items-center justify-center ${className}`}
+            className={`bg-primary py-2 px-4 rounded hover:bg-primary-hover w-full md:w-auto ${className}`}
             disabled={loading}
         >
             {loading ? (
@@ -36,7 +38,7 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
                 <FontAwesomeIcon icon={faIcon} />
             )}
         </button>
-    );
-};
+    )
+}
 
-export default LoadingButton;
+export default LoadingButton
