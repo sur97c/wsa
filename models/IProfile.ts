@@ -1,9 +1,7 @@
 // models/IProfile.ts
 
 export interface IProfile {
-    disabled: boolean;
-    firebaseId: string;
+    id: string;
     lastName: string;
     name: string;
-    roles: string[];
 }
