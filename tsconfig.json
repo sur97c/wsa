@@ -21,6 +21,7 @@
     "paths": {
       "@actions/*": ["./actions/*"],
       "@app/*": ["./app/*"],
+      "@dictionaries/*": ["./dictionaries/*"],
       "@hooks/*": ["./hooks/*"],
       "@components/*": ["./components/*"],
       "@lib/*": ["./lib/*"],
@@ -28,7 +29,8 @@
       "@public/*": ["./public/*"],
       "@styles/*": ["./styles/*"],
       "@models/*": ["./models/*"],
-      "@utils/*": ["./utils/*"]
+      "@utils/*": ["./utils/*"],
+      "@types/*": ["./types/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
