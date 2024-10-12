@@ -1,12 +1,14 @@
 // lib/redux/slices/authSlice.ts
 
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit"
 import { auth } from "@lib/firebase/firebase"
-import { signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "firebase/auth"
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"
 import { FirebaseError } from "firebase/app"
 import { getFirestoreData } from "@actions/getFirestoreData"
+import { getUserStatus } from "@actions/authActions"
 import { IAuthState } from "@models/IAuthState"
 import { IProfile } from "@models/IProfile"
+import { IUserClaims } from "@models/IUserClaims"
 
 export const dynamic = 'force-dynamic'
 
@@ -14,10 +16,12 @@ const initialState: {
     auth: IAuthState | null;
     loading: boolean;
     error: string | null;
+    showLogin: boolean;
 } = {
     auth: null,
     loading: false,
     error: null,
+    showLogin: false,
 }
 
 const DELAY_TIME: number = 0
@@ -32,24 +36,32 @@ export const loginUser = createAsyncThunk(
 
             const userCredential = await signInWithEmailAndPassword(auth, email, password)
             const user = userCredential.user
+
+            const userStatus = await getUserStatus(user.uid)
+
+            if (userStatus.disabled) {
+                throw new Error('Esta cuenta de usuario ha sido deshabilitada.')
+            }
+
             const userProfile = await getFirestoreData<IProfile>('users', user.uid, true)
 
-            // localStorage.setItem('rememberMe', rememberMe.toString())
             login({ uid: user.uid, email: email, rememberMe })
 
             const authState: IAuthState = {
                 uid: user.uid,
                 email: user.email || '',
+                emailVerified: user.emailVerified || false,
                 displayName: user.displayName || '',
-                disabled: userProfile?.disabled || true,
+                creationTime: user.metadata?.creationTime,
+                lastSignInTime: user.metadata?.lastSignInTime,
                 firebaseId: userProfile?.firebaseId || '',
                 lastName: userProfile?.lastName || '',
                 name: userProfile?.name || '',
-                roles: userProfile?.roles || [],
                 isAuthenticated: true,
-                rememberMe,
+                disabled: userStatus.disabled,
+                customClaims: userStatus?.customClaims,
+                rememberMe: credentials.rememberMe,
                 lastActivity: Date.now(),
-                customClaims: userProfile?.customClaims
             }
 
             console.log('User profile fetched:', userProfile) // Log para debug
@@ -64,6 +76,9 @@ export const loginUser = createAsyncThunk(
                     case 'auth/invalid-credential':
                         message = 'Credenciales invalidas.';
                         break;
+                    case 'auth/user-disabled':
+                        message = 'Esta cuenta de usuario ha sido deshabilitada.';
+                        break;
                     default:
                         message = error.message;
                         break;
@@ -77,14 +92,14 @@ export const loginUser = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk(
     'auth/logoutUser',
-    async (_, thunkAPI) => {
+    async (_, { rejectWithValue }) => {
         try {
             await delay(DELAY_TIME);
-            await signOut(auth);
+            await auth.signOut();
             return;
         } catch (error) {
             console.error(error);
-            return thunkAPI.rejectWithValue('Error al cerrar sesión');
+            return rejectWithValue('Error al cerrar sesión');
         }
     }
 );
@@ -117,6 +132,23 @@ export const recoverAccess = createAsyncThunk(
     }
 );
 
+export const checkUserStatus = createAsyncThunk<
+    { disabled: boolean; customClaims: IUserClaims },
+    string,
+    { rejectValue: string }
+>(
+    'auth/checkUserStatus',
+    async (userId: string, thunkAPI) => {
+        try {
+            const userStatus = await getUserStatus(userId)
+            return userStatus
+        } catch (error) {
+            console.error(error)
+            return thunkAPI.rejectWithValue('Error al verificar el estado del usuario');
+        }
+    }
+);
+
 export const authSlice = createSlice({
     name: "auth",
     initialState,
@@ -131,10 +163,18 @@ export const authSlice = createSlice({
             state.loading = false;
             state.error = null;
         },
+        checkUserStatus: (state, action) => {
+            state.auth = action.payload;
+            state.loading = false;
+            state.error = null;
+        },
         updateLastActivity: (state) => {
             if (state.auth) {
                 state.auth.lastActivity = Date.now();
             }
+        },
+        setShowLogin: (state, action: PayloadAction<boolean>) => {
+            state.showLogin = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -151,6 +191,22 @@ export const authSlice = createSlice({
                 console.log('State after login:', state); // Log para debug
             })
             .addCase(loginUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'An error occurred';
+            })
+
+            // Check user status cases
+            .addCase(checkUserStatus.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(checkUserStatus.fulfilled, (state, action) => {
+                if (state.auth) {
+                    state.auth.disabled = action.payload.disabled;
+                    state.auth.customClaims = action.payload.customClaims;
+                }
+            })
+            .addCase(checkUserStatus.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || 'An error occurred';
             })
@@ -185,5 +241,5 @@ export const authSlice = createSlice({
     },
 });
 
-export const { login, logout, updateLastActivity } = authSlice.actions;
+export const { login, logout, updateLastActivity, setShowLogin } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,40 +1,48 @@
 // components/header/Header.tsx
+
 'use client'
 
-import { RootState, useAppDispatch, useAppSelector } from "@lib/redux/store"
-import { logoutUser } from "@lib/redux/slices/authSlice"
+import React, { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSignInAlt, faSignOutAlt, faUserCircle, faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { useTranslations } from '@hooks/useTranslations'
+import { RootState, useAppDispatch, useAppSelector } from "@lib/redux/store"
+import { logoutUser, setShowLogin } from "@lib/redux/slices/authSlice"
+import { useSafeRouter } from "@hooks/useSafeRouter"
 import { useFlip } from "@providers/flip-provider"
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import LoginForm from "@components/header/LoginForm"
 import Image from 'next/image'
+import LoginForm from "@components/header/LoginForm"
 import LoadingButton from "@components/loading-button/LoadingButton"
-import '@fortawesome/fontawesome-svg-core/styles.css'
-import ThemeToggle from "@components/theme-toggle/ThemeToggle"
 import Navigation from "@components/navigation/Navigation"
+import UserMenu from "@components/user-menu/UserMenu"
+import '@fortawesome/fontawesome-svg-core/styles.css'
 
 export default function Header() {
-    const [isLoginOpen, setIsLoginOpen] = useState(false);
-    const { isFlipped, toggleFlip } = useFlip();
-    const [isLoadingPage, setIsLoadingPage] = useState(true);
-
-    const auth = useAppSelector((state: RootState) => state.auth.auth);
-    const dispatch = useAppDispatch();
-    const { loading, error } = useAppSelector((state) => state.auth);
+    const { t, translations } = useTranslations()
+    const { safeNavigate } = useSafeRouter()
+    const { isFlipped, toggleFlip } = useFlip()
+    const { loading, error } = useAppSelector((state) => state.auth)
+    const [isLoadingPage, setIsLoadingPage] = useState(true)
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+    const auth = useAppSelector((state: RootState) => state.auth.auth)
+    const showLogin = useAppSelector((state: RootState) => state.auth.showLogin)
+    const dispatch = useAppDispatch()
 
     const toggleLogin = () => {
         if (isFlipped && toggleFlip)
-            toggleFlip(() => setIsLoginOpen(!isLoginOpen));
-        if (!isFlipped)
-            setIsLoginOpen(!isLoginOpen);
-    };
+            toggleFlip(() => dispatch(setShowLogin(!showLogin)))
+        else
+            dispatch(setShowLogin(!showLogin))
+    }
 
     const handleLogoutUser = () => {
-        setIsLoginOpen(false);
-        dispatch(logoutUser());
-    };
+        dispatch(setShowLogin(false))
+        dispatch(logoutUser())
+        setIsUserMenuOpen(false)
+        safeNavigate(`/`, true)
+    }
+
+    const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
 
     useEffect(() => {
         setIsLoadingPage(false);
@@ -42,77 +50,73 @@ export default function Header() {
 
     return (
         <>
-            <header className="bg-light text-white p-4">
-                <nav className="container mx-auto flex justify-between items-center">
+            <header className="bg-light text-white">
+                <nav className="container mx-auto flex justify-between">
+                    <Image
+                        src="/images/WSA-logo.png"
+                        alt="WSA Logo"
+                        width={16}
+                        height={16}
+                        priority={true}
+                        className={`transition-all duration-500 m-2 w-24 h-24`}
+                    />
                     <div className="flex items-center">
-                        <Image
-                            src="/images/WSA-logo.png"
-                            alt="WSA Logo"
-                            width={16}
-                            height={16}
-                            priority={true}
-                            className={`transition-all duration-500 ${isLoginOpen && auth && !auth?.isAuthenticated ? "w-32 h-32" : "w-16 h-16"}`}
-                        />
-                        <div className="ml-4">
-                            <ThemeToggle />
-                        </div>
-                    </div>
-                    <div className="relative">
-                        {
-                            isLoadingPage ? (
-                                <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-primary" />
-                            ) : (
-                                <>
-                                    {error && <p className="flex justify-center mt-2 text-red-500">{error}</p>}
-                                    {
-                                        auth && auth?.isAuthenticated ? (
-                                            <div>
+                        <div className="relative flex items-center justify-end m-2">
+                            {
+                                isLoadingPage ? (
+                                    <FontAwesomeIcon icon={faSpinner} spin size="2x" className="text-primary" />
+                                ) : (
+                                    <>
+                                        {error && <p className="flex justify-center mt-2 text-red-500">{error}</p>}
+                                        {auth && auth?.isAuthenticated ? (
+                                            <div className="relative">
                                                 <div className="flex justify-center text-primary">
-                                                    <Link href="/profile" className="ml-4 text-primary hover:text-secondary-light flex flex-row items-center space-x-2">
-                                                        <FontAwesomeIcon icon={faUserCircle} size="2x" />
-                                                        <div className="flex flex-col">
-                                                            <h2>Bienvenido {auth?.name || auth?.displayName || 'Usuario'}</h2>
-                                                            <span>{auth?.email}</span>
+                                                    <button
+                                                        onClick={toggleUserMenu}
+                                                        className="flex items-center text-primary hover:text-primary-hover focus:outline-none"
+                                                    >
+                                                        <FontAwesomeIcon icon={faUserCircle} size="2x" className="mr-2" />
+                                                        <div className="flex flex-col items-start">
+                                                            <span>
+                                                                {t(translations.header.welcome, { name: auth?.name || auth?.displayName || 'Usuario' })}
+                                                            </span>
                                                         </div>
-                                                    </Link>
+                                                    </button>
                                                     <div className="flex flex-row justify-center space-x-2 ml-4">
                                                         <LoadingButton
                                                             type="button"
                                                             onClick={handleLogoutUser}
-                                                            aria-label={loading ? "Cerrando sesión..." : "Cerrar sesión"}
+                                                            aria-label={loading ? t(translations.header.closingSession) : t(translations.header.closeLogin)}
                                                             className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-hover w-full md:w-auto flex items-center justify-center"
                                                             faIcon={faSignOutAlt}
                                                             loading={loading}
                                                         />
                                                     </div>
                                                 </div>
+                                                {isUserMenuOpen && <UserMenu onClose={() => setIsUserMenuOpen(false)} />}
                                             </div>
                                         ) : (
-                                            <div>
+                                            <div className='relative'>
                                                 <div className="flex items-center justify-end">
                                                     <button
                                                         onClick={toggleLogin}
-                                                        className="text-primary hover:text-secondary-light flex items-center"
-                                                        aria-label={isLoginOpen ? 'Cerrar panel de inicio de sesión' : 'Abrir panel de inicio de sesión'}
+                                                        className="text-primary hover:text-primary-hover hover:font-bold flex items-center"
+                                                        aria-label={showLogin ? 'Cerrar panel de inicio de sesión' : 'Abrir panel de inicio de sesión'}
                                                     >
                                                         <FontAwesomeIcon
-                                                            icon={isLoginOpen ? faTimes : faSignInAlt}
+                                                            icon={showLogin ? faTimes : faSignInAlt}
                                                             className="mr-2"
                                                         />
-                                                        <span>{isLoginOpen ? 'Cerrar' : 'Iniciar sesión'}</span>
+                                                        <span>{showLogin ? t(translations.header.closeLogin) : t(translations.header.showLogin)}</span>
                                                     </button>
                                                 </div>
-                                                <div className={`transition-max-height duration-500 ease-in-out overflow-hidden ${isLoginOpen ? "max-h-96" : "max-h-0"}`}>
-                                                    <div className="bg-white text-black p-4 mt-2 rounded shadow-lg">
-                                                        <LoginForm />
-                                                    </div>
-                                                </div>
+                                                <LoginForm showLogin={showLogin} />
                                             </div>
-                                        )
-                                    }
-                                </>
-                            )
-                        }
+                                        )}
+                                    </>
+                                )
+                            }
+                        </div>
                     </div>
                 </nav>
             </header>
