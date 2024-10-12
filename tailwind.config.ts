@@ -42,11 +42,16 @@ const config: Config = {
         'md': '4px',
       },
       boxShadow: {
-        'bottom': '0 4px 6px -5px rgba(0, 0, 0, 0.1)',
+        'bottom': '0 2px 6px -5px rgba(0, 0, 0, 0.1)',
+      },
+      height: {
+        38: '38rem'
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
 };
 
 export default config;

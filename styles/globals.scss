@@ -28,8 +28,8 @@
     --primary-hover: #6c68ff;
     --primary-form: #2a2d3e;
     --secondary: #2c2c2c;
-    --secondary-dark: #ff9e2c;
-    --secondary-light: #ffae4d;
+    --secondary-dark: #f3efea;
+    --secondary-light: #af9b83;
     --light: #2c2c2c;
     --dark: #f5f5f5;
     --white: #1a1a1a;
@@ -77,4 +77,6 @@ form {
     @apply bg-primary-form text-foreground;
 }
 
-// Puedes agregar más estilos globales aquí
+.form-input {
+    height: 47px;
+}

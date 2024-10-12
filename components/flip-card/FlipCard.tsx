@@ -1,9 +1,9 @@
-// components/flip-card.tsx
+// components/flip-card/FlipCard.tsx
 
-import { ReactNode } from "react";
-import styles from './FlipCard.module.scss';
-import { useFlip } from "@providers/flip-provider";
-import classNames from 'classnames';
+import { ReactNode } from "react"
+import styles from './FlipCard.module.scss'
+import { useFlip } from "@providers/flip-provider"
+import classNames from 'classnames'
 
 interface FlipCardProps {
     frontContent: ReactNode;
@@ -23,5 +23,5 @@ export const FlipCard = ({ frontContent, backContent }: FlipCardProps) => {
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
