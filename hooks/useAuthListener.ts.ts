@@ -1,21 +1,21 @@
 // hooks/useAuthListener.ts
 
-import { useEffect } from 'react';
-import { useAppDispatch } from "@lib/redux/store";
-import { login, logout } from "@lib/redux/slices/authSlice";
-import { onAuthStateChanged, getAuth } from "firebase/auth";
-import { getFirestoreData } from "@actions/getFirestoreData";
-import { IProfile } from "@models/IProfile";
-import { auth } from "@lib/firebase/firebase";
+import { useEffect } from 'react'
+import { useAppDispatch } from "@lib/redux/store"
+import { login, logout } from "@lib/redux/slices/authSlice"
+import { onAuthStateChanged, getAuth } from "firebase/auth"
+import { getFirestoreData } from "@actions/getFirestoreData"
+import { IProfile } from "@models/IProfile"
+import { auth } from "@lib/firebase/firebase"
 
 export function useAuthListener() {
-    const dispatch = useAppDispatch();
+    const dispatch = useAppDispatch()
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const shouldRemember = localStorage.getItem('rememberMe') === 'true';
-                const userProfile = await getFirestoreData<IProfile>('users', user.uid, true);
+                const shouldRemember = localStorage.getItem('rememberMe') === 'true'
+                const userProfile = await getFirestoreData<IProfile>('users', user.uid, true)
 
                 dispatch(login({
                     uid: user.uid,
@@ -30,12 +30,12 @@ export function useAuthListener() {
                     rememberMe: shouldRemember,
                     lastActivity: Date.now(),
                     customClaims: userProfile?.customClaims
-                }));
+                }))
             } else {
-                dispatch(logout());
+                dispatch(logout())
             }
-        });
+        })
 
-        return () => unsubscribe();
-    }, [dispatch]);
+        return () => unsubscribe()
+    }, [dispatch])
 }
