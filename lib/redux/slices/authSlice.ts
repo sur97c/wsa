@@ -48,13 +48,13 @@ export const loginUser = createAsyncThunk(
             login({ uid: user.uid, email: email, rememberMe })
 
             const authState: IAuthState = {
+                id: userProfile?.id || '',
                 uid: user.uid,
                 email: user.email || '',
                 emailVerified: user.emailVerified || false,
                 displayName: user.displayName || '',
                 creationTime: user.metadata?.creationTime,
                 lastSignInTime: user.metadata?.lastSignInTime,
-                firebaseId: userProfile?.firebaseId || '',
                 lastName: userProfile?.lastName || '',
                 name: userProfile?.name || '',
                 isAuthenticated: true,
