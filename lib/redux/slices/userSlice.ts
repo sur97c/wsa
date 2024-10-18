@@ -1,12 +1,12 @@
 // userSlice.ts
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getDocumentsData } from '@actions/firestoreActions';
+import { getPaginatedFirestoreData } from '@actions/getPaginatedFirestoreData'
 import { FirebaseError } from 'firebase/app'
-import { IUser } from '@models/IUser'
+import { IAuthState } from '@models/IAuthState';
 
 export interface IUsersState {
-    users: IUser[];
+    users: IAuthState[];
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
 }
@@ -21,7 +21,7 @@ export const getUsersData = createAsyncThunk(
     'users/getUsersData',
     async (_, thunkAPI) => {
         try {
-            const users = await getDocumentsData<IUser[]>('users');
+            const users = await getPaginatedFirestoreData<IAuthState[]>('users', 10, { field: 'name', direction: 'asc' });
             return users;
         } catch (error) {
             if (error instanceof FirebaseError) {
@@ -59,7 +59,7 @@ const userSlice = createSlice({
             })
             .addCase(getUsersData.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.users = action.payload as unknown as IUser[];
+                state.users = action.payload as unknown as IAuthState[];
             })
             .addCase(getUsersData.rejected, (state, action) => {
                 state.status = 'failed';
