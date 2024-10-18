@@ -42,7 +42,7 @@ export default function Navigation() {
                         <Link
                             key={role.key}
                             href={role.key === 'home' ? `/${language}` : `/${language}/${role.key}`}
-                            className={`text-dark hover:text-primary-hover hover:font-bold ${pathname === (role.key === 'home' ? `/${language}` : `/${language}/${role.key}`)
+                            className={`text-dark text-center sm:w-[7.5rem] hover:text-primary-hover hover:font-bold ${pathname === (role.key === 'home' ? `/${language}` : `/${language}/${role.key}`)
                                 ? 'text-primary font-extrabold'
                                 : ''
                                 }`}
