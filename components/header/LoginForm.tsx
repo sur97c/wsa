@@ -77,7 +77,7 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                                 </div>
                                 {/* Checkbox para pantallas pequeñas */}
                                 <div className="flex justify-center md:justify-start md:flex-1 md:hidden">
-                                    <label className="cursor-pointer md:flex-none text-primary hover:text-primary-hover hover:font-bold">
+                                    <label className="cursor-pointer md:flex-none text-primary hover:text-primary-hover">
                                         <input
                                             type="checkbox"
                                             checked={rememberMe}
@@ -103,7 +103,7 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                             <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 md:mt-4 mt-0">
                                 {/* Checkbox para pantallas medianas y grandes */}
                                 <div className="hidden md:flex md:flex-1 md:m-2 justify-center md:justify-start">
-                                    <label className="cursor-pointer md:flex-none text-primary hover:text-primary-hover hover:font-bold">
+                                    <label className="cursor-pointer md:flex-none text-primary hover:text-primary-hover">
                                         <input
                                             type="checkbox"
                                             checked={rememberMe}
@@ -115,11 +115,11 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                                 </div>
                                 <div className="flex justify-center md:justify-start md:flex-1">
                                     <div className="md:flex-none md:mt-2">
-                                        <span onClick={handleToggleFlip} className="cursor-pointer text-sm text-primary hover:text-primary-hover hover:font-bold">
+                                        <span onClick={handleToggleFlip} className="cursor-pointer text-sm text-primary hover:text-primary-hover">
                                             {t(translations.loginForm.recoveryAccess)}
                                             <FontAwesomeIcon
                                                 icon={faArrowRight}
-                                                className="ml-2 hover:text-primary-hover hover:font-bold"
+                                                className="ml-2 hover:text-primary-hover"
                                             />
                                         </span>
                                     </div>
@@ -184,11 +184,11 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                                 type="button"
                                 aria-label={t(translations.loginForm.signIn)}
                                 onClick={handleToggleFlip}
-                                className="text-primary hover:text-primary-hover hover:font-bold flex items-center"
+                                className="text-primary hover:text-primary-hover flex items-center"
                             >
                                 <FontAwesomeIcon
                                     icon={faArrowLeft}
-                                    className="mr-2 hover:text-primary-hover hover:font-bold"
+                                    className="mr-2 hover:text-primary-hover"
                                 />
                                 <span>{t(translations.loginForm.signIn)}</span>
                             </button>
