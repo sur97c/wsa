@@ -1,66 +1,158 @@
 // AdvancedTable.module.scss
 
+// Container principal
 .tableContainer {
-  @apply w-full h-full flex flex-col bg-white rounded-lg;
+  @apply w-full bg-white rounded-lg flex flex-col;
   position: relative;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
-  position: relative;
-}
+  height: 600px;
 
-.tableContainer {
+  // Overlay para modo edición
+  .overlay {
+    @apply absolute inset-0 bg-white;
+    opacity: 0.7;
+    z-index: 30;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  // Header
   .header {
-    @apply bg-white border-b p-4;
-    transition: filter 0.2s ease-in-out;
+    @apply bg-white border-b p-4 flex-shrink-0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 
     .searchSection {
       @apply flex items-center gap-4;
+
+      @media (max-width: 768px) {
+        @apply flex-col;
+        gap: 1rem;
+
+        .filterControls {
+          @apply w-full flex-wrap gap-2;
+
+          select,
+          input {
+            @apply w-full;
+          }
+        }
+
+        .actionButtons {
+          @apply w-full flex justify-between;
+        }
+      }
     }
 
     &.editing {
       @apply pointer-events-none;
-      // filter: blur(0.5px);
     }
   }
-}
 
-.tableContainer {
+  // Cuerpo de la tabla
   .tableBody {
-    @apply flex-grow flex flex-col overflow-hidden;
-    transition: filter 0.2s ease-in-out;
+    @apply flex-1 flex flex-col;
+    min-height: 0;
+    position: relative;
 
     &.editing {
       @apply pointer-events-none;
-      // filter: blur(2px);
+    }
+
+    // Vista mobile
+    @media (max-width: 768px) {
+      .mobileScrollContainer {
+        @apply flex-1 overflow-y-auto;
+        height: 100%;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .mobileContainer {
+        @apply p-4 space-y-4;
+      }
     }
   }
-}
 
-.tableContainer {
-  .filterTag {
-    @apply bg-gray-200 rounded-full px-3 py-1 text-sm flex items-center;
-    transition: all 0.2s ease-in-out;
+  // Footer
+  .footer {
+    @apply bg-white border-t border-gray-200 p-4 flex-shrink-0;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
 
-    &:hover {
-      @apply bg-gray-300;
-    }
-
-    .closeButton {
-      @apply ml-2 text-gray-600;
-      transition: color 0.15s ease-in-out;
-
-      &:hover {
-        @apply text-gray-800;
+    @media (max-width: 768px) {
+      .grid {
+        @apply grid-cols-1 gap-2 text-center;
       }
     }
   }
 }
 
-.editWrapper {
+// Filtros y tags
+.filterTag {
+  @apply bg-gray-200 rounded-full px-3 py-1 text-sm flex items-center;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    @apply bg-gray-300;
+  }
+
+  .closeButton {
+    @apply ml-2 text-gray-600;
+    transition: color 0.15s ease-in-out;
+
+    &:hover {
+      @apply text-gray-800;
+    }
+  }
+}
+
+// Cards para vista móvil
+.mobileCard {
+  @apply bg-white rounded-lg shadow-sm p-4;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .cardHeader {
+    @apply flex items-center justify-between mb-4;
+
+    .checkboxContainer {
+      @apply flex items-center gap-2;
+    }
+
+    .actionsContainer {
+      @apply flex items-center;
+    }
+  }
+
+  .cardContent {
+    @apply space-y-3;
+
+    .cardField {
+      @apply flex flex-col;
+
+      .fieldLabel {
+        @apply text-xs font-medium text-gray-500;
+      }
+
+      .fieldValue {
+        @apply text-sm text-gray-900 break-words;
+      }
+    }
+  }
+}
+
+// Panel de edición
+.editContainer {
   position: relative;
-  width: 100%;
-  margin: 1rem 0;
-  overflow: visible;
+  z-index: 40;
 }
 
 .editRow {
@@ -68,6 +160,13 @@
   position: relative;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   border: 1px solid #e2e8f0;
+
+  @media (max-width: 768px) {
+    @apply fixed inset-0 m-0 rounded-none;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 40;
+  }
 
   &::before {
     content: "";
@@ -82,40 +181,10 @@
 }
 
 .editContent {
-  padding: 1.5rem;
+  @apply p-6;
 }
 
-// Transiciones
-.editRowTransition {
-  &-enter {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-
-  &-enter-active {
-    opacity: 1;
-    transform: translateY(0);
-    transition: all 300ms ease-in-out;
-  }
-
-  &-exit {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  &-exit-active {
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: all 300ms ease-in-out;
-  }
-}
-
-.tableContainer {
-  .footer {
-    @apply bg-white border-t border-gray-200 p-4;
-  }
-}
-
+// Transiciones para el panel de edición
 .editRowTransition {
   &-enter {
     opacity: 0;
@@ -140,13 +209,44 @@
   }
 }
 
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.7);
-  z-index: 5;
-  transition: opacity 0.3s ease-in-out;
+// Scrollbar personalizado
+.scrollableContent {
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+
+  &::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+
+    &:hover {
+      @apply bg-gray-400;
+    }
+  }
+}
+
+// Ajustes específicos para vista móvil
+@media (max-width: 768px) {
+  .overlay {
+    @apply fixed;
+  }
+
+  .mobileScrollContainer {
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      @apply bg-transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      @apply bg-gray-300 rounded-full;
+    }
+  }
 }

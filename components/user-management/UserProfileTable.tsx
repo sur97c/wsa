@@ -26,7 +26,6 @@ const fetchUserProfiles = async (
   sortColumn: keyof UserProfileWithId | null,
   sortDirection: "asc" | "desc"
 ): Promise<UserProfileWithId[]> => {
-
   function generateRandomDate(start: Date, end: Date): string {
     return new Date(
       start.getTime() + Math.random() * (end.getTime() - start.getTime())
@@ -65,7 +64,8 @@ const fetchUserProfiles = async (
     };
   }
 
-  const mockData = Array.from({ length: 100 }, (_, index) => {
+  // Generar un conjunto total de datos para simular una base de datos
+  const totalMockData = Array.from({ length: 100 }, (_, index) => {
     const { firstName, lastName } = generateRandomName();
     const creationTime = generateRandomDate(new Date(2020, 0, 1), new Date());
     const lastSignInTime = generateRandomDate(
@@ -77,7 +77,7 @@ const fetchUserProfiles = async (
       id: `${index}`,
       uid: uuidv4(),
       email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`,
-      emailVerified: Math.random() > 0.2, // 80% chance of being verified
+      emailVerified: Math.random() > 0.2,
       displayName: `${firstName} ${lastName}`,
       name: firstName,
       lastName: lastName,
@@ -86,8 +86,9 @@ const fetchUserProfiles = async (
     };
   });
 
-  const filteredData = mockData.filter(
+  const filteredData = totalMockData.filter(
     (user) =>
+      !searchTerm ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -106,13 +107,10 @@ const fetchUserProfiles = async (
     });
   }
 
-  const start = (page - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  console.log("fetchUserProfiles", { page, start, end });
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
 
-  // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-  return filteredData.slice(start, end);
+  return filteredData.slice(startIndex, endIndex);
 };
 
 const UserProfileTable: React.FC = () => {

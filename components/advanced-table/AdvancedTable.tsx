@@ -27,7 +27,6 @@ import { CSSTransition } from "react-transition-group";
 import styles from "./AdvancedTable.module.scss";
 import clsx from "clsx";
 
-const EXTRA_WIDTH_PADDING = 40;
 const HEADER_HEIGHT = 48;
 const ROW_HEIGHT = 70;
 
@@ -55,7 +54,7 @@ export interface AdvancedTableProps<T extends DataItem> {
 function AdvancedTable<T extends DataItem>({
   columns,
   fetchData,
-  itemsPerPage = 50,
+  itemsPerPage = 10,
   searchPlaceholder = "Buscar...",
   tableOptions = [],
   rowOptions = [],
@@ -87,14 +86,21 @@ function AdvancedTable<T extends DataItem>({
   const [selectOptions, setSelectOptions] = useState<string[]>([]);
   const editRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
+  const [actualPage, setActualPage] = useState(1);
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
   if (onCloseEdit) console.log(onCloseEdit);
 
   const loadMoreData = useCallback(async () => {
-    if (loading || !hasMore) return;
+    if (loading || !hasMore || data.length < itemsPerPage) return;
 
     try {
       setLoading(true);
+      console.log("Loading More Data:", {
+        currentPage: page,
+        currentDataLength: data.length,
+      });
+
       const newData = await fetchData(
         page,
         itemsPerPage,
@@ -104,12 +110,27 @@ function AdvancedTable<T extends DataItem>({
         filters
       );
 
-      if (newData.length < itemsPerPage) {
-        setHasMore(false);
+      console.log("Additional Data Received:", {
+        receivedRecords: newData.length,
+      });
+
+      const uniqueNewData = newData.filter(
+        (newItem) =>
+          !data.some((existingItem) => existingItem.id === newItem.id)
+      );
+
+      if (uniqueNewData.length > 0) {
+        setData((prev) => [...prev, ...uniqueNewData]);
+        setActualPage(
+          Math.ceil((data.length + uniqueNewData.length) / itemsPerPage)
+        );
       }
 
-      setData((prevData) => [...prevData, ...newData]);
-      setPage((prevPage) => prevPage + 1);
+      setHasMore(newData.length === itemsPerPage);
+
+      if (newData.length === itemsPerPage) {
+        setPage((p) => p + 1);
+      }
     } catch (err) {
       setError("Error fetching data. Please try again.");
       console.error("Error fetching data:", err);
@@ -126,33 +147,8 @@ function AdvancedTable<T extends DataItem>({
     fetchData,
     loading,
     hasMore,
+    data,
   ]);
-
-  const initialLoad = async () => {
-    if (data.length === 0) {
-      setLoading(true);
-      try {
-        const initialData = await fetchData(
-          1,
-          itemsPerPage,
-          searchTerm,
-          sortColumn,
-          sortDirection,
-          filters
-        );
-        setData(initialData);
-        if (initialData.length < itemsPerPage) {
-          setHasMore(false);
-        }
-        setPage(2);
-      } catch (err) {
-        setError("Error fetching initial data. Please try again.");
-        console.error("Error fetching initial data:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
 
   const handleScroll = useCallback(
     debounce(
@@ -163,29 +159,69 @@ function AdvancedTable<T extends DataItem>({
         scrollOffset: number;
         scrollDirection: "forward" | "backward";
       }) => {
-        // Solo nos interesa el scroll hacia abajo
         if (scrollDirection === "backward") return;
 
-        const visibleHeight = 400; // O usar una variable/prop para la altura de la lista
+        const visibleHeight = 400;
         const totalHeight = ROW_HEIGHT * data.length;
 
-        // Cargar más datos cuando nos acercamos al final
         if (
           totalHeight - scrollOffset <= visibleHeight * 1.5 &&
           !loading &&
-          hasMore
+          hasMore &&
+          data.length >= itemsPerPage
         ) {
           loadMoreData();
         }
       },
       150
     ),
-    [loading, hasMore, loadMoreData, data.length, ROW_HEIGHT]
+    [loading, hasMore, loadMoreData, data.length, ROW_HEIGHT, itemsPerPage]
   );
+
+  const initialLoad = useCallback(async () => {
+    if (data.length === 0 && !loading) {
+      setLoading(true);
+      try {
+        console.log("Initial Load Started");
+        const initialData = await fetchData(
+          1,
+          itemsPerPage,
+          searchTerm,
+          sortColumn,
+          sortDirection,
+          filters
+        );
+
+        console.log("Initial Data Received:", {
+          receivedRecords: initialData.length,
+        });
+
+        setData(initialData);
+        setActualPage(1);
+
+        setHasMore(initialData.length === itemsPerPage);
+        setPage(2);
+      } catch (err) {
+        setError("Error fetching initial data. Please try again.");
+        console.error("Error fetching initial data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  }, [
+    data.length,
+    loading,
+    fetchData,
+    itemsPerPage,
+    searchTerm,
+    sortColumn,
+    sortDirection,
+    filters,
+  ]);
 
   useEffect(() => {
     initialLoad();
-  });
+  }, []);
 
   useEffect(() => {
     if (editRef.current && isEditing) {
@@ -235,7 +271,7 @@ function AdvancedTable<T extends DataItem>({
 
   const renderTableHeader = () => (
     <div
-      className="flex text-gray-600 text-sm bg-gray-100"
+      className="flex text-gray-600 text-sm bg-gray-100 tableHeader"
       style={{
         height: `${HEADER_HEIGHT}px`,
         filter: isEditing ? "blur(0.1px)" : "none",
@@ -291,18 +327,22 @@ function AdvancedTable<T extends DataItem>({
         <div
           ref={editRef}
           className={styles.editRow}
-          style={{
-            width: `${containerWidth + 40}px`,
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 10,
-            backgroundColor: "white",
-            borderRadius: "8px",
-            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-            border: "1px solid #e2e8f0",
-            marginTop: "3rem",
-          }}
+          style={
+            isMobile
+              ? undefined
+              : {
+                  width: `${containerWidth + 40}px`,
+                  position: "absolute",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  zIndex: 10,
+                  backgroundColor: "white",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                  border: "1px solid #e2e8f0",
+                  marginTop: "3rem",
+                }
+          }
         >
           {editComponent}
         </div>
@@ -384,6 +424,49 @@ function AdvancedTable<T extends DataItem>({
     );
   };
 
+  const MobileCard = useCallback(
+    ({ item }: { item: T }) => (
+      <div className={styles.mobileCard}>
+        <div className={styles.cardHeader}>
+          <div className={styles.checkboxContainer}>
+            <input
+              type="checkbox"
+              checked={selectedRows.includes(item.id)}
+              onChange={() => handleRowSelect(item.id)}
+            />
+            <span className="text-sm font-semibold text-gray-600">
+              ID: {item.id}
+            </span>
+          </div>
+          <div className={styles.actionsContainer}>
+            <RowActions
+              item={item}
+              showMenu={showRowMenu === item.id}
+              onMenuToggle={setShowRowMenu}
+              rowOptions={rowOptions}
+            />
+          </div>
+        </div>
+
+        <div className={styles.cardContent}>
+          {columns.map((column) => {
+            if (column.key === "id") return null;
+
+            return (
+              <div key={String(column.key)} className={styles.cardField}>
+                <div className={styles.fieldLabel}>{column.label}</div>
+                <div className={styles.fieldValue}>
+                  {renderCellContent(column, item)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ),
+    [columns, selectedRows, showRowMenu, rowOptions, handleRowSelect]
+  );
+
   const Row = useCallback(
     ({ index, style }: { index: number; style: React.CSSProperties }) => {
       const item = data[index];
@@ -391,7 +474,12 @@ function AdvancedTable<T extends DataItem>({
 
       return (
         <div style={style}>
-          <div className="flex items-center bg-white border-b border-gray-200 hover:bg-gray-50">
+          {/* Vista móvil */}
+          <div className="block md:hidden">
+            <MobileCard item={item} />
+          </div>
+          {/* Vista desktop */}
+          <div className="hidden md:flex items-center bg-white border-b border-gray-200 hover:bg-gray-50">
             <div className="py-3 text-center w-12 flex-shrink-0">
               <input
                 type="checkbox"
@@ -619,32 +707,20 @@ function AdvancedTable<T extends DataItem>({
             </option>
           ))}
         </select>
-        {
-          selectedOperator && (
-            <div className="flex flex-row">
-              {renderFilterInput()}
-              {
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer"
-                  onClick={addFilter}
-                  disabled={!selectedColumn || !filterValue}
-                >
-                  <FontAwesomeIcon icon={faFilter} />
-                </button>
-                // <button className="px-4 py-2 bg-blue-500 text-white rounded-md">
-                //     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                //         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                //     </svg>
-                // </button>
-              }
-            </div>
-          )
-          //     <button className="px-4 py-2 bg-blue-500 text-white rounded-md">
-          //     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          //         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-          //     </svg>
-          // </button>
-        }
+        {selectedOperator && (
+          <div className="flex flex-row">
+            {renderFilterInput()}
+            {
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer"
+                onClick={addFilter}
+                disabled={!selectedColumn || !filterValue}
+              >
+                <FontAwesomeIcon icon={faFilter} />
+              </button>
+            }
+          </div>
+        )}
       </>
     );
   };
@@ -676,51 +752,15 @@ function AdvancedTable<T extends DataItem>({
       </select>
       {renderFilterOperatorSelect()}
     </div>
-
-    // <div className="flex flex-row flex-wrap items-center mb-2 sm:flex-nowrap">
-    //     <select
-    //         className="p-2 border rounded"
-    //         value={selectedColumn ? String(selectedColumn.key) : ''}
-    //         onChange={async (e) => {
-    //             const column = columns.find(col => String(col.key) === e.target.value)
-    //             setSelectedColumn(column || null)
-    //             setSelectedOperator('eq')
-    //             setFilterValue('')
-    //             if (column && column.type === 'select' && column.fetchOptions) {
-    //                 const options = await column.fetchOptions()
-    //                 setSelectOptions(options)
-    //             }
-    //         }}
-    //     >
-    //         <option value="">Select column</option>
-    //         {columns.map((column) => (
-    //             <option key={String(column.key)} value={String(column.key)}>
-    //                 {column.label}
-    //             </option>
-    //         ))}
-    //     </select>
-    //     {renderFilterOperatorSelect()}
-    //     {
-    //         selectedOperator &&
-    //         <div className='flex flex-row'>
-    //             {renderFilterInput()}
-    //             <button
-    //                 className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 m-2"
-    //                 onClick={addFilter}
-    //                 disabled={!selectedColumn || !filterValue}
-    //             >
-    //                 <FontAwesomeIcon icon={faFilter} />
-    //             </button>
-    //         </div>
-    //     }
-    // </div>
   );
 
   const renderFooter = () => (
     <div className="grid grid-cols-3 items-center">
       <div className="text-gray-500 text-sm">
         {data.length > 0
-          ? `Showing ${data.length} results, page ${page - 1}`
+          ? loading
+            ? `Loading more results...`
+            : `Showing ${data.length} results, page ${actualPage}`
           : "No results found"}
       </div>
       <div className="flex justify-center">
@@ -738,9 +778,13 @@ function AdvancedTable<T extends DataItem>({
     <TableContainer>
       {(containerWidth) => (
         <div className={styles.tableContainer}>
+
+          {/* Overlay */}
           {isEditing && <div className={styles.overlay} />}
+
           {/* Header */}
           <div className={styles.header}>
+
             {/* Search and Filters */}
             <div className={styles.searchSection}>
               {/* Search Bar */}
@@ -784,6 +828,7 @@ function AdvancedTable<T extends DataItem>({
               {/* Table Options */}
               {showTableMenu && renderTableMenu()}
             </div>
+
             {/* Active Filters */}
             {enableFilters && filters.length > 0 && (
               <div className="flex flex-wrap gap-2 p-2 justify-center">
@@ -803,25 +848,30 @@ function AdvancedTable<T extends DataItem>({
                 ))}
               </div>
             )}
+
           </div>
+
           {/* Error message */}
           {error && <div className="text-red-500 p-4">{error}</div>}
-          {/* Contenedor principal con position relative */}
-          <div style={{ position: "relative", width: "100%" }}>
-            {/* Panel de edición */}
-            {renderTableRowEdit(containerWidth)}
 
-            {/* Table header y contenido */}
-            <div
-              className={clsx(styles.tableBody, {
-                [styles.editing]: isEditing,
-              })}
-            >
+          {/* Cuerpo con Scroll */}
+          <div
+            className={clsx(styles.tableBody, {
+              [styles.editing]: isEditing,
+            })}
+          >
+
+            {/* Panel de Edición */}
+            <div className={styles.editContainer}>
+              {renderTableRowEdit(containerWidth)}
+            </div>
+
+            {/* Vista Desktop */}
+            <div className="hidden md:block h-full">
               {renderTableHeader()}
               <div
                 style={{
                   width: containerWidth,
-                  // filter: isEditing ? "blur(0.1px)" : "none",
                   pointerEvents: isEditing ? "none" : "auto",
                   marginTop: `${isEditing ? height : 0}px`,
                 }}
@@ -832,15 +882,40 @@ function AdvancedTable<T extends DataItem>({
                   itemCount={data.length}
                   itemSize={ROW_HEIGHT}
                   onScroll={handleScroll}
-                  className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                  className={styles.scrollableContent}
                   overscanCount={5}
                 >
                   {Row}
                 </FixedSizeList>
               </div>
             </div>
+
+            {/* Vista Mobile */}
+            <div className="block md:hidden h-full">
+              <div
+                className={styles.mobileScrollContainer}
+                onScroll={(e) => {
+                  const target = e.target as HTMLDivElement;
+                  if (
+                    !loading &&
+                    hasMore &&
+                    target.scrollHeight - target.scrollTop <=
+                      target.clientHeight * 1.5
+                  ) {
+                    loadMoreData();
+                  }
+                }}
+              >
+                <div className={styles.mobileContainer}>
+                  {data.map((item) => (
+                    <MobileCard key={item.id} item={item} />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-          {/* Footer con el mismo ancho */}
+
+          {/* Footer */}
           <div className={styles.footer} style={{ width: containerWidth }}>
             {renderFooter()}
           </div>
@@ -849,8 +924,5 @@ function AdvancedTable<T extends DataItem>({
     </TableContainer>
   );
 }
-
-const capitalizeFirst = (str: string) =>
-  str.charAt(0).toUpperCase() + str.slice(1);
 
 export default AdvancedTable;
