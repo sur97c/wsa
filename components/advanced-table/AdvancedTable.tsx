@@ -87,6 +87,8 @@ function AdvancedTable<T extends DataItem>({
   const editRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
   const [actualPage, setActualPage] = useState(1);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
   if (onCloseEdit) console.log(onCloseEdit);
 
@@ -220,7 +222,7 @@ function AdvancedTable<T extends DataItem>({
 
   useEffect(() => {
     initialLoad();
-  }, []);
+  });
 
   useEffect(() => {
     if (editRef.current && isEditing) {
@@ -234,7 +236,7 @@ function AdvancedTable<T extends DataItem>({
     return () => {
       document.documentElement.style.removeProperty("--edit-height");
     };
-  }, [isEditing]);
+  }, [isEditing, height]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -464,7 +466,14 @@ function AdvancedTable<T extends DataItem>({
         </div>
       </div>
     ),
-    [columns, selectedRows, showRowMenu, rowOptions, handleRowSelect]
+    [
+      columns,
+      selectedRows,
+      showRowMenu,
+      rowOptions,
+      handleRowSelect,
+      renderCellContent,
+    ]
   );
 
   const Row = useCallback(
@@ -508,7 +517,7 @@ function AdvancedTable<T extends DataItem>({
         </div>
       );
     },
-    [data, columns, selectedRows, showRowMenu, rowOptions]
+    [data, columns, selectedRows, showRowMenu, rowOptions, renderCellContent]
   );
 
   const renderTableMenu = () => (
@@ -755,7 +764,6 @@ function AdvancedTable<T extends DataItem>({
   );
 
   const renderHeader = () => {
-    const [showMobileFilters, setShowMobileFilters] = useState(false);
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
     if (isMobile) {
@@ -962,7 +970,6 @@ function AdvancedTable<T extends DataItem>({
     </div>
   );
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
   return (
     <TableContainer>
       {(containerWidth) => (
