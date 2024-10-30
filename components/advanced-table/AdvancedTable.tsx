@@ -87,7 +87,6 @@ function AdvancedTable<T extends DataItem>({
   const editRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
   const [actualPage, setActualPage] = useState(1);
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
   if (onCloseEdit) console.log(onCloseEdit);
 
@@ -311,6 +310,7 @@ function AdvancedTable<T extends DataItem>({
 
   const renderTableRowEdit = (containerWidth: number) => {
     if (!isEditing) return null;
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
     return (
       <CSSTransition
@@ -754,6 +754,194 @@ function AdvancedTable<T extends DataItem>({
     </div>
   );
 
+  const renderHeader = () => {
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
+    if (isMobile) {
+      return (
+        <div className={styles.header}>
+          {/* Barra de búsqueda y botones */}
+          <div className="flex items-center gap-2">
+            {/* Caja de búsqueda */}
+            <div className="flex-grow relative">
+              <FontAwesomeIcon
+                icon={faSearch}
+                className="absolute text-gray-400 left-3 top-1/2 transform -translate-y-1/2"
+              />
+              <input
+                type="text"
+                placeholder={searchPlaceholder}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md"
+                onChange={handleSearch}
+                value={searchTerm}
+              />
+            </div>
+
+            {/* Botones de acción */}
+            <div className="flex items-center gap-1">
+              {/* Botón de Filtros */}
+              {enableFilters && (
+                <button
+                  className={`w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 ${
+                    showMobileFilters
+                      ? "bg-gray-100 text-blue-600"
+                      : "text-gray-600"
+                  }`}
+                  onClick={() => setShowMobileFilters(!showMobileFilters)}
+                >
+                  <FontAwesomeIcon icon={faFilter} />
+                </button>
+              )}
+
+              {/* Botón de Agregar */}
+              {onAdd && (
+                <button
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={onAdd}
+                >
+                  <FontAwesomeIcon icon={faPlus} />
+                </button>
+              )}
+
+              {/* Botón de Opciones */}
+              <button
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100"
+                onClick={() => setShowTableMenu(!showTableMenu)}
+              >
+                <FontAwesomeIcon
+                  icon={faEllipsisVertical}
+                  className="text-gray-600"
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Sección de filtros con transición */}
+          {enableFilters && (
+            <div
+              className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                showMobileFilters
+                  ? "max-h-96 opacity-100 mt-4"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="py-2">{renderFilterSection()}</div>
+            </div>
+          )}
+
+          {/* Filtros activos - siempre visibles si existen */}
+          {enableFilters && filters.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4 px-2">
+              {filters.map((filter, index) => (
+                <div
+                  key={index}
+                  className={`${styles.filterTag} bg-gray-100 text-sm rounded-full px-3 py-1 flex items-center`}
+                >
+                  <span>{`${String(filter.column)} ${filter.operator} ${
+                    filter.value
+                  }`}</span>
+                  <button
+                    className="ml-2 text-gray-500 hover:text-gray-700"
+                    onClick={() => removeFilter(index)}
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Menú de opciones de tabla */}
+          {showTableMenu && (
+            <div className="absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
+              {tableOptions.map((option, index) => (
+                <button
+                  key={index}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => {
+                    option.action();
+                    setShowTableMenu(false);
+                  }}
+                >
+                  {option.icon && <span className="mr-2">{option.icon}</span>}
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.header}>
+        {/* Search and Filters */}
+        <div className={styles.searchSection}>
+          {/* Search Bar */}
+          <div className="flex flex-wrap sm:flex-nowrap w-full">
+            <div className="relative flex items-center flex-grow">
+              <FontAwesomeIcon
+                icon={faSearch}
+                className="absolute text-gray-400 left-3"
+              />
+            </div>
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md"
+              onChange={handleSearch}
+              value={searchTerm}
+            />
+          </div>
+          {/* Filters Options */}
+          {enableFilters && renderFilterSection()}
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            {onAdd && (
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+                onClick={onAdd}
+              >
+                <FontAwesomeIcon icon={faPlus} />
+                <span>Agregar</span>
+              </button>
+            )}
+
+            {/* Table Options */}
+            <button
+              className="p-2 rounded-full hover:bg-gray-100"
+              onClick={() => setShowTableMenu(!showTableMenu)}
+            >
+              <FontAwesomeIcon icon={faEllipsisVertical} />
+            </button>
+          </div>
+          {/* Table Options */}
+          {showTableMenu && renderTableMenu()}
+        </div>
+        {/* Active Filters */}
+        {enableFilters && filters.length > 0 && (
+          <div className="flex flex-wrap gap-2 p-2 justify-center">
+            {/* Filter Tags */}
+            {filters.map((filter, index) => (
+              <div key={index} className={styles.filterTag}>
+                <span>{`${String(filter.column)} ${filter.operator} ${
+                  filter.value
+                }`}</span>
+                <button
+                  className={styles.closeButton}
+                  onClick={() => removeFilter(index)}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderFooter = () => (
     <div className="grid grid-cols-3 items-center">
       <div className="text-gray-500 text-sm">
@@ -774,6 +962,7 @@ function AdvancedTable<T extends DataItem>({
     </div>
   );
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
   return (
     <TableContainer>
       {(containerWidth) => (
@@ -782,71 +971,7 @@ function AdvancedTable<T extends DataItem>({
           {isEditing && <div className={styles.overlay} />}
 
           {/* Header */}
-          <div className={styles.header}>
-            {/* Search and Filters */}
-            <div className={styles.searchSection}>
-              {/* Search Bar */}
-              <div className="flex flex-wrap sm:flex-nowrap w-full">
-                <div className="relative flex items-center flex-grow">
-                  <FontAwesomeIcon
-                    icon={faSearch}
-                    className="absolute text-gray-400 left-3"
-                  />
-                </div>
-                <input
-                  type="text"
-                  placeholder={searchPlaceholder}
-                  className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-md"
-                  onChange={handleSearch}
-                  value={searchTerm}
-                />
-              </div>
-              {/* Filters Options */}
-              {enableFilters && renderFilterSection()}
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-                {onAdd && (
-                  <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
-                    onClick={onAdd}
-                  >
-                    <FontAwesomeIcon icon={faPlus} />
-                    <span>Agregar</span>
-                  </button>
-                )}
-
-                {/* Table Options */}
-                <button
-                  className="p-2 rounded-full hover:bg-gray-100"
-                  onClick={() => setShowTableMenu(!showTableMenu)}
-                >
-                  <FontAwesomeIcon icon={faEllipsisVertical} />
-                </button>
-              </div>
-              {/* Table Options */}
-              {showTableMenu && renderTableMenu()}
-            </div>
-
-            {/* Active Filters */}
-            {enableFilters && filters.length > 0 && (
-              <div className="flex flex-wrap gap-2 p-2 justify-center">
-                {/* Filter Tags */}
-                {filters.map((filter, index) => (
-                  <div key={index} className={styles.filterTag}>
-                    <span>{`${String(filter.column)} ${filter.operator} ${
-                      filter.value
-                    }`}</span>
-                    <button
-                      className={styles.closeButton}
-                      onClick={() => removeFilter(index)}
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {renderHeader()}
 
           {/* Error message */}
           {error && <div className="text-red-500 p-4">{error}</div>}
