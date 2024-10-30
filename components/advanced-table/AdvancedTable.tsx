@@ -327,24 +327,24 @@ function AdvancedTable<T extends DataItem>({
         <div
           ref={editRef}
           className={styles.editRow}
-          style={
-            isMobile
-              ? undefined
-              : {
-                  width: `${containerWidth + 40}px`,
-                  position: "absolute",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  zIndex: 10,
-                  backgroundColor: "white",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                  border: "1px solid #e2e8f0",
-                  marginTop: "3rem",
-                }
-          }
+          style={{
+            width: isMobile ? "100%" : `${containerWidth + 40}px`,
+            position: isMobile ? "fixed" : "absolute",
+            left: isMobile ? 0 : "50%",
+            transform: isMobile ? "none" : "translateX(-50%)",
+            zIndex: 40,
+            backgroundColor: "white",
+            borderRadius: "8px",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+            border: "1px solid #e2e8f0",
+            marginTop: isMobile ? 0 : "3rem",
+            // Importante: removemos pointer-events: none
+            pointerEvents: "auto",
+          }}
         >
-          {editComponent}
+          <div className={styles.editContent} style={{ pointerEvents: "auto" }}>
+            {editComponent}
+          </div>
         </div>
       </CSSTransition>
     );
@@ -778,13 +778,11 @@ function AdvancedTable<T extends DataItem>({
     <TableContainer>
       {(containerWidth) => (
         <div className={styles.tableContainer}>
-
           {/* Overlay */}
           {isEditing && <div className={styles.overlay} />}
 
           {/* Header */}
           <div className={styles.header}>
-
             {/* Search and Filters */}
             <div className={styles.searchSection}>
               {/* Search Bar */}
@@ -848,7 +846,6 @@ function AdvancedTable<T extends DataItem>({
                 ))}
               </div>
             )}
-
           </div>
 
           {/* Error message */}
@@ -857,10 +854,9 @@ function AdvancedTable<T extends DataItem>({
           {/* Cuerpo con Scroll */}
           <div
             className={clsx(styles.tableBody, {
-              [styles.editing]: isEditing,
+              [styles.editing]: isEditing && !isMobile, // Solo aplicamos editing al cuerpo de la tabla, no al panel
             })}
           >
-
             {/* Panel de Edición */}
             <div className={styles.editContainer}>
               {renderTableRowEdit(containerWidth)}
