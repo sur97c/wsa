@@ -56,7 +56,7 @@ export default function Header() {
   return (
     <>
       <header className="bg-light text-white">
-        <nav className="container mx-auto flex justify-between">
+        <nav className="flex justify-between ml-4 mr-4">
           <Image
             src="/images/WSA-logo.png"
             alt="WSA Logo"
