@@ -153,7 +153,7 @@ export type AdvancedTableProps<T extends DataItem> = BaseTableProps<T> &
 // Constants
 // =======================================
 export const TABLE_CONSTANTS = {
-  VISIBLE_HEIGHT: 412,
+  VISIBLE_HEIGHT: 380,
   HEADER_HEIGHT: 48,
   ROW_HEIGHT: 70,
 } as const;

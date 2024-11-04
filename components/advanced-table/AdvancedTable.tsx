@@ -313,6 +313,22 @@ function AdvancedTable<T extends DataItem>({
   // Effects
   // ==============================================
   useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--table-container-height",
+      `${HEADER_HEIGHT + VISIBLE_HEIGHT}px`
+    );
+    document.documentElement.style.setProperty(
+      "--header-height",
+      `${headerRef.current?.offsetHeight || 0}px`
+    );
+    document.documentElement.style.setProperty(
+      "--edit-panel-top",
+      `${(headerRef.current?.offsetHeight || 0) + HEADER_HEIGHT}px`
+    );
+    document.documentElement.style.setProperty(
+      "--footer-height",
+      `${footerRef.current?.offsetHeight || 0}px`
+    );
     if (data.length === 0 && !loading) {
       const loadInitialData = async () => {
         setLoading(true);
@@ -337,18 +353,6 @@ function AdvancedTable<T extends DataItem>({
         }
       };
       loadInitialData();
-      document.documentElement.style.setProperty(
-        "--header-height",
-        `${headerRef.current?.offsetHeight || 0}px`
-      );
-      document.documentElement.style.setProperty(
-        "--edit-panel-top",
-        `${(headerRef.current?.offsetHeight || 0) + HEADER_HEIGHT}px`
-      );
-      document.documentElement.style.setProperty(
-        "--footer-height",
-        `${footerRef.current?.offsetHeight || 0}px`
-      );
     }
   }, [
     data.length,
@@ -1089,9 +1093,7 @@ function AdvancedTable<T extends DataItem>({
             {/* Header */}
             {renderHeader()}
             {/* Edit Panel */}
-            <div className={styles.editContainer}>
-              {renderTableRowEdit()}
-            </div>
+            <div className={styles.editContainer}>{renderTableRowEdit()}</div>
             {/* Error message */}
             {error && <div className="text-red-500 p-4">{error}</div>}
             {/* Table Body */}
