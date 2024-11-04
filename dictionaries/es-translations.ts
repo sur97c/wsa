@@ -69,9 +69,70 @@ export const esTranslations: Translation = {
         title: "Clientes"
     },
     management: {
-        title: "Administración"
+        title: "Administración",
+        advancedTable: {
+            users: {
+                columns: {
+                    id: "ID",
+                    email: "Correo electrónico",
+                    emailVerified: "Verificado",
+                    displayName: "Mostrar Nombre",
+                    name: "Nombre",
+                    lastName: "Apellido",
+                    creationTime: "Creado",
+                    lastSignInTime: "Ultimo acceso"
+                },
+                tableOptions: {
+                    exportCsv: "Exportar a CSV"
+                },
+                rowOptions: {
+                    edit: "Editar",
+                    delete: "Eliminar"
+                }
+            }
+        }
     },
     reports: {
         title: "Reportes"
+    },
+    advancedTable: {
+        searchPlaceholder: "Buscar...",
+        loading: "Cargando...",
+        noResults: "No se encontraron resultados",
+        addButton: "Agregar",
+        showingResults: "Mostrando {{count}} resultados, página {{page}}",
+        noMoreData: "No hay más datos para cargar",
+        loadingMore: "Cargando más resultados...",
+        page: "Página",
+        actions: "Acciones",
+        addEditTitle: "Agregar/Editar Usuario",
+        save: "Salvar",
+        cancel: "Cancelar",
+        filters: {
+            selectColumn: "Filtrar por",
+            selectOperator: "Operador",
+            filterValue: "Valor del filtro",
+            operators: {
+                eq: "Igual a",
+                neq: "Diferente a",
+                gt: "Mayor que",
+                gte: "Mayor o igual a",
+                lt: "Menor que",
+                lte: "Menor o igual a",
+                between: "Entre",
+                contains: "Contiene"
+            },
+            minValue: "Valor mínimo",
+            maxValue: "Valor máximo",
+            true: "Verdadero",
+            false: "Falso",
+            selectOption: "Seleccionar opción",
+            removeFilter: "Eliminar filtro",
+            dateFormat: "dd/MM/yyyy"
+        },
+        boolean: {
+            true: "Sí",
+            false: "No"
+        }
     }
 }

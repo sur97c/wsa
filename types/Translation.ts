@@ -1,5 +1,37 @@
 // types/Translation.ts
 
+import { TableTranslations } from "@components/advanced-table/advancedTableDefinition";
+
+export interface TableTranslationBase {
+    columns: {
+        [key: string]: string;
+    };
+    rowOptions?: {
+        [key: string]: string;
+    };
+    tableOptions?: {
+        [key: string]: string;
+    };
+}
+
+export interface ModuleTableEntities {
+    [entityName: string]: TableTranslationBase;
+}
+
+export interface ModuleWithTable {
+    title: string;
+    advancedTable: ModuleTableEntities;
+}
+
+export type ModuleWithTableKey =
+    | "management"
+    // | "clients"
+    // | "policies"
+    // | "quotes"
+    // | "claims"
+    // | "payments"
+    // | "reports";
+
 export interface Translation {
     header: {
         title: string;
@@ -66,10 +98,9 @@ export interface Translation {
     clients: {
         title: string;
     },
-    management: {
-        title: string;
-    },
+    management: ModuleWithTable,
     reports: {
         title: string;
-    }
+    },
+    advancedTable: TableTranslations
 }

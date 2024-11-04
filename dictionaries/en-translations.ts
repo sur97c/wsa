@@ -69,9 +69,70 @@ export const enTranslations: Translation = {
         title: "Clients"
     },
     management: {
-        title: "Management"
+        title: "Management",
+        advancedTable: {
+            users: {
+                columns: {
+                    id: "ID",
+                    email: "Email",
+                    emailVerified: "Verified",
+                    displayName: "Display Name",
+                    name: "Name",
+                    lastName: "Last Name",
+                    creationTime: "Creation Time",
+                    lastSignInTime: "Last SignIn Time"
+                },
+                tableOptions: {
+                    exportCsv: "Export to CSV"
+                },
+                rowOptions: {
+                    edit: "Edit",
+                    delete: "Delete"
+                }
+            }
+        }
     },
     reports: {
         title: "Reports"
+    },
+    advancedTable: {
+        searchPlaceholder: "Search...",
+        loading: "Loading...",
+        noResults: "No results found",
+        addButton: "Add",
+        showingResults: "Showing {{count}} results, page {{page}}",
+        noMoreData: "No more data to load",
+        loadingMore: "Loading more results...",
+        page: "Page",
+        actions: "Actions",
+        addEditTitle: "Add/Edit User",
+        save: "Save",
+        cancel: "Cancel",
+        filters: {
+            selectColumn: "Select column",
+            selectOperator: "Select operator",
+            filterValue: "Filter value",
+            operators: {
+                eq: "Equals",
+                neq: "Not equals",
+                gt: "Greater than",
+                gte: "Greater than or equal",
+                lt: "Less than",
+                lte: "Less than or equal",
+                between: "Between",
+                contains: "Contains"
+            },
+            minValue: "Min value",
+            maxValue: "Max value",
+            true: "True",
+            false: "False",
+            selectOption: "Select option",
+            removeFilter: "Remove filter",
+            dateFormat: "MM/dd/yyyy"
+        },
+        boolean: {
+            true: "Yes",
+            false: "No"
+        }
     }
 }

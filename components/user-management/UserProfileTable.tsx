@@ -12,6 +12,12 @@ import {
   TableOption,
 } from "@components/advanced-table/advancedTableDefinition";
 import AdvancedTable from "@components/advanced-table/AdvancedTable";
+import { useAdvancedTableTranslations } from "@components/advanced-table/useAdvancedTableTranslations";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheckCircle,
+  faTimesCircle,
+} from "@fortawesome/free-solid-svg-icons";
 
 type CellValueRecord<T> = {
   [K in keyof T]: T[K] extends CellValue ? T[K] : CellValue;
@@ -114,48 +120,84 @@ const fetchUserProfiles = async (
 };
 
 const UserProfileTable: React.FC = () => {
+  const {
+    tableTranslations,
+    translateColumns,
+    translateTableOptions,
+    translateRowOptions,
+  } = useAdvancedTableTranslations<UserProfile>({
+    module: "management",
+    entity: "users",
+  });
+
   // Definimos las columnas
   const columns: Column<UserProfileWithId>[] = [
-    { key: "id", label: "ID", align: "center", type: "string", width: "5%" },
+    {
+      key: "id",
+      label: "columns.id",
+      align: "center",
+      type: "string",
+      width: "5%",
+    },
     {
       key: "email",
-      label: "Email",
+      label: "columns.email",
       align: "center",
       type: "string",
       width: "20%",
     },
     {
       key: "emailVerified",
-      label: "Verified",
+      label: "columns.emailVerified",
       align: "center",
-      render: (value: string | boolean | undefined) => (value ? "Yes" : "No"),
+      render: (value: string | boolean | undefined) => (
+        <div
+          className={`
+            inline-flex items-center px-2 py-0.5 rounded-full font-medium
+            ${value ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
+          `}
+          title={
+            value ? tableTranslations.boolean.true : tableTranslations.boolean.false
+          }
+        >
+          <FontAwesomeIcon
+            icon={value ? faCheckCircle : faTimesCircle}
+            className="mr-1"
+          />
+          <span>
+            {value
+              ? tableTranslations.boolean.true
+              : tableTranslations.boolean.false}
+          </span>
+        </div>
+      ),
       type: "boolean",
       width: "8%",
     },
     {
       key: "displayName",
-      label: "Display Name",
+      label: "columns.displayName",
       align: "center",
       type: "string",
       width: "15%",
     },
     {
       key: "name",
-      label: "First Name",
+      label: "columns.firstName",
       align: "center",
       type: "string",
       width: "12%",
     },
     {
       key: "lastName",
-      label: "Last Name",
+      label: "columns.lastName",
       align: "center",
       type: "string",
       width: "12%",
     },
     {
       key: "creationTime",
-      label: "Created At",
+      label: "columns.createdAt",
       align: "center",
       render: (value: string | boolean | undefined) =>
         new Date(value as string).toLocaleString(),
@@ -164,7 +206,7 @@ const UserProfileTable: React.FC = () => {
     },
     {
       key: "lastSignInTime",
-      label: "Last Sign In",
+      label: "columns.lastSignIn",
       align: "center",
       render: (value: string | boolean | undefined) =>
         new Date(value as string).toLocaleString(),
@@ -181,14 +223,14 @@ const UserProfileTable: React.FC = () => {
 
   const EditComponent = () => (
     <div className="p-6 bg-white w-full">
-      <h2 className="font-semibold mb-4">Agregar/Editar Usuario</h2>
+      <h2 className="font-semibold mb-4">{tableTranslations.addEditTitle}</h2>
       {/* Tus campos de formulario aquí */}
       <div className="flex justify-end gap-2 mt-4">
         <button
           className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
           onClick={() => setIsEditing(false)}
         >
-          Cancelar
+          {tableTranslations.cancel}
         </button>
         <button
           className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded"
@@ -197,7 +239,7 @@ const UserProfileTable: React.FC = () => {
             setIsEditing(false);
           }}
         >
-          Guardar
+          {tableTranslations.save}
         </button>
       </div>
     </div>
@@ -206,11 +248,11 @@ const UserProfileTable: React.FC = () => {
   // Definimos las opciones de fila
   const rowOptions: RowOption<UserProfileWithId>[] = [
     {
-      label: "Edit",
+      label: "rowOptions.edit",
       action: (item: UserProfileWithId) => console.log("Edit", item),
     },
     {
-      label: "Delete",
+      label: "rowOptions.delete",
       action: (item: UserProfileWithId) => console.log("Delete", item),
     },
   ];
@@ -218,24 +260,29 @@ const UserProfileTable: React.FC = () => {
   // Definimos las opciones de tabla
   const tableOptions: TableOption[] = [
     {
-      label: "Export CSV",
+      label: "tableOptions.exportCsv",
       action: () => console.log("Exporting CSV..."),
     },
   ];
+
+  const translations = {
+    columns: translateColumns(columns),
+    tableOptions: translateTableOptions(tableOptions),
+    rowOptions: translateRowOptions(rowOptions),
+    tableTranslations,
+  };
 
   return (
     <AdvancedTable<UserProfileWithId>
       columns={columns}
       fetchData={fetchUserProfiles}
       itemsPerPage={10}
-      searchPlaceholder="Search users..."
-      tableOptions={tableOptions}
-      rowOptions={rowOptions}
       enableFilters={true}
       isEditing={isEditing}
       editComponent={<EditComponent />}
       onCloseEdit={() => setIsEditing(false)}
       onAdd={handleAdd}
+      translations={translations}
     />
   );
 };
