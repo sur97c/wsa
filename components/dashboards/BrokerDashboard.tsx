@@ -12,6 +12,8 @@ import {
   Pie,
   Cell,
   Legend,
+  Area,
+  AreaChart,
 } from "recharts";
 import {
   Users,
@@ -22,7 +24,14 @@ import {
   ThumbsUp,
   Briefcase,
   LucideIcon,
+  CheckCircle,
+  UserPlus,
+  Activity,
+  UserCheck,
 } from "lucide-react";
+import { useTranslations } from "@hooks/useTranslations";
+import { IUser } from "@models/IUser";
+import { IProfile } from "@models/IProfile";
 
 interface KPICardProps {
   title: string;
@@ -49,74 +58,269 @@ interface AnimatedChartProps {
   title: string;
 }
 
-// Datos existentes...
-const monthlyCommissions = [
-  { name: "Ene", value: 45000 },
-  { name: "Feb", value: 52000 },
-  { name: "Mar", value: 48000 },
-  { name: "Abr", value: 61000 },
-  { name: "May", value: 55000 },
-  { name: "Jun", value: 67000 },
-];
-
-const policyTypes = [
-  { name: "Auto", value: 35 },
-  { name: "Vida", value: 25 },
-  { name: "Hogar", value: 20 },
-  { name: "Salud", value: 20 },
-];
-
-// const userActivity = [
-//   { name: "Lun", active: 120 },
-//   { name: "Mar", active: 132 },
-//   { name: "Mie", active: 125 },
-//   { name: "Jue", active: 138 },
-//   { name: "Vie", active: 142 },
-//   { name: "Sab", active: 98 },
-//   { name: "Dom", active: 85 },
-// ];
-
-// Nuevos datos para los gauges
-const gaugeData = [
-  {
-    name: "Satisfacción",
-    value: 95,
-    fill: "#00C49F",
-    icon: ThumbsUp,
-    description: "Satisfacción de clientes",
-  },
-  {
-    name: "Retención",
-    value: 88,
-    fill: "#0088FE",
-    icon: Users,
-    description: "Tasa de retención de clientes",
-  },
-  {
-    name: "Reclamos",
-    value: 15,
-    fill: "#FF8042",
-    icon: AlertTriangle,
-    description: "Tasa de reclamos",
-  },
-  {
-    name: "Cotizaciones",
-    value: 75,
-    fill: "#FFBB28",
-    icon: Briefcase,
-    description: "Conversión de cotizaciones",
-  },
-];
-
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function BrokerDashboard() {
+  const { t, translations } = useTranslations();
   const [isVisible, setIsVisible] = useState(false);
-  // const [currentValue, setCurrentValue] = useState(0);
+  const [users, setUsers] = useState<(IUser & IProfile)[]>([]);
+
+  // Datos existentes...
+  const monthlyCommissions = [
+    {
+      name: t(translations.home.brokerDashboard.common.months.jan),
+      value: 45000,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.months.feb),
+      value: 52000,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.months.mar),
+      value: 48000,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.months.apr),
+      value: 61000,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.months.may),
+      value: 55000,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.months.jun),
+      value: 67000,
+    },
+  ];
+
+  const policyTypes = [
+    {
+      name: t(
+        translations.home.brokerDashboard.charts.policyDistribution.types.auto
+      ),
+      value: 35,
+    },
+    {
+      name: t(
+        translations.home.brokerDashboard.charts.policyDistribution.types.life
+      ),
+      value: 25,
+    },
+    {
+      name: t(
+        translations.home.brokerDashboard.charts.policyDistribution.types.home
+      ),
+      value: 20,
+    },
+    {
+      name: t(
+        translations.home.brokerDashboard.charts.policyDistribution.types.health
+      ),
+      value: 20,
+    },
+  ];
+
+  const userActivity = [
+    {
+      name: t(translations.home.brokerDashboard.common.weekdays.mon),
+      active: 120,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.weekdays.tue),
+      active: 132,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.weekdays.wed),
+      active: 125,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.weekdays.thu),
+      active: 138,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.weekdays.fri),
+      active: 142,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.weekdays.sat),
+      active: 98,
+    },
+    {
+      name: t(translations.home.brokerDashboard.common.weekdays.sun),
+      active: 85,
+    },
+  ];
+
+  // Nuevos datos para los gauges
+  const gaugeData = [
+    {
+      name: t(translations.home.brokerDashboard.gauges.satisfaction.name),
+      value: 95,
+      fill: "#00C49F",
+      icon: ThumbsUp,
+      description: t(
+        translations.home.brokerDashboard.gauges.satisfaction.description
+      ),
+    },
+    {
+      name: t(translations.home.brokerDashboard.gauges.retention.name),
+      value: 88,
+      fill: "#0088FE",
+      icon: Users,
+      description: t(
+        translations.home.brokerDashboard.gauges.retention.description
+      ),
+    },
+    {
+      name: t(translations.home.brokerDashboard.gauges.claims.name),
+      value: 15,
+      fill: "#FF8042",
+      icon: AlertTriangle,
+      description: t(
+        translations.home.brokerDashboard.gauges.claims.description
+      ),
+    },
+    {
+      name: t(translations.home.brokerDashboard.gauges.quotes.name),
+      value: 75,
+      fill: "#FFBB28",
+      icon: Briefcase,
+      description: t(
+        translations.home.brokerDashboard.gauges.quotes.description
+      ),
+    },
+  ];
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  // Simulate fetch of user data
+  useEffect(() => {
+    // Mock data - replace with actual API call
+    const mockUsers: (IUser & IProfile)[] = Array.from(
+      { length: 100 },
+      (_, i) => ({
+        id: `user-${i}`,
+        uid: `user-${i}`,
+        firebaseId: `user-${i}`,
+        email: `user${i}@example.com`,
+        emailVerified: Math.random() > 0.2,
+        displayName: `User ${i}`,
+        name: `John${i}`,
+        lastName: `Doe${i}`,
+        creationTime: new Date(
+          Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
+        ).toISOString(),
+        lastSignInTime: new Date(
+          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
+        ).toISOString(),
+      })
+    );
+
+    setUsers(mockUsers);
+  }, []);
+
+  // Calculate user statistics
+  const userStats = React.useMemo(() => {
+    const verifiedCount = users.filter((u) => u.emailVerified).length;
+    const verifiedPercentage = (verifiedCount / users.length) * 100;
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const newUsersCount = users.filter(
+      (u) => new Date(u.creationTime || "") > thirtyDaysAgo
+    ).length;
+
+    const recentLoginCount = users.filter((u) => {
+      const lastLogin = new Date(u.lastSignInTime || "");
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      return lastLogin > sevenDaysAgo;
+    }).length;
+
+    const completedProfiles = users.filter(
+      (u) => u.name?.trim() && u.lastName?.trim()
+    ).length;
+    const profileCompletionRate = (completedProfiles / users.length) * 100;
+
+    return {
+      verifiedPercentage,
+      newUsersCount,
+      recentLoginCount,
+      totalUsers: users.length,
+      profileCompletionRate,
+    };
+  }, [users]);
+
+  // New User Stats Cards Component
+  const UserStatsCards = () => (
+    <motion.div
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+      variants={containerVariants}
+    >
+      <KPICard
+        title={t(
+          translations.home.brokerDashboard.userStats.verifiedUsers.title
+        )}
+        value={`${Math.round(userStats.verifiedPercentage)}%`}
+        icon={<CheckCircle className="h-6 w-6 text-white" />}
+        color="bg-emerald-500"
+      />
+      <KPICard
+        title={t(translations.home.brokerDashboard.userStats.newUsers.title)}
+        value={userStats.newUsersCount.toString()}
+        icon={<UserPlus className="h-6 w-6 text-white" />}
+        color="bg-indigo-500"
+      />
+      <KPICard
+        title={t(
+          translations.home.brokerDashboard.userStats.userEngagement.title
+        )}
+        value={`${Math.round(
+          (userStats.recentLoginCount / userStats.totalUsers) * 100
+        )}%`}
+        icon={<Activity className="h-6 w-6 text-white" />}
+        color="bg-cyan-500"
+      />
+      <KPICard
+        title="Total Users"
+        value={userStats.totalUsers.toString()}
+        icon={<Users className="h-6 w-6 text-white" />}
+        color="bg-violet-500"
+      />
+    </motion.div>
+  );
+
+  // New User Activity Chart Component
+  const UserActivityChart = () => (
+    <AnimatedChart
+      title={t(translations.home.brokerDashboard.userActivity.title)}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={userActivity}>
+          <defs>
+            <linearGradient id="activeGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#6366f1" stopOpacity={0.1} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Area
+            type="monotone"
+            dataKey="active"
+            stroke="#6366f1"
+            fillOpacity={1}
+            fill="url(#activeGradient)"
+            name={t(translations.home.brokerDashboard.userActivity.activeUsers)}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </AnimatedChart>
+  );
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -191,7 +395,8 @@ export default function BrokerDashboard() {
                   trend >= 0 ? "text-green-500" : "text-red-500"
                 }`}
               >
-                {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}% vs mes anterior
+                {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%{" "}
+                {t(translations.home.brokerDashboard.common.vsLastMonth)}
               </motion.p>
             )}
           </div>
@@ -308,43 +513,52 @@ export default function BrokerDashboard() {
       animate={isVisible ? "visible" : "hidden"}
       variants={containerVariants}
     >
+      {/* Gauge Cards */}
+      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {gaugeData.map((data, index) => (
+          <GaugeCard key={index} data={data} />
+        ))}
+      </motion.div>
+      {/* Existing KPI Cards */}
       <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
-          title="Comisiones Mensuales"
+          title={t(
+            translations.home.brokerDashboard.kpis.monthlyCommissions.title
+          )}
           value="$67,000"
           icon={<DollarSign className="h-6 w-6 text-white" />}
           trend={12.5}
           color="bg-blue-500"
         />
         <KPICard
-          title="Clientes Activos"
+          title={t(translations.home.brokerDashboard.kpis.activeClients.title)}
           value="1,234"
           icon={<Users className="h-6 w-6 text-white" />}
           trend={5.2}
           color="bg-green-500"
         />
         <KPICard
-          title="Pólizas Vigentes"
+          title={t(translations.home.brokerDashboard.kpis.activePolicies.title)}
           value="3,567"
           icon={<FileText className="h-6 w-6 text-white" />}
           trend={8.7}
           color="bg-purple-500"
         />
         <KPICard
-          title="Tasa de Renovación"
+          title={t(translations.home.brokerDashboard.kpis.renewalRate.title)}
           value="92%"
           icon={<Award className="h-6 w-6 text-white" />}
           trend={2.1}
           color="bg-yellow-500"
         />
       </motion.div>
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {gaugeData.map((data, index) => (
-          <GaugeCard key={index} data={data} />
-        ))}
-      </motion.div>
+      {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AnimatedChart title="Comisiones Mensuales">
+        <AnimatedChart
+          title={t(
+            translations.home.brokerDashboard.charts.monthlyCommissions.title
+          )}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyCommissions}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -365,7 +579,11 @@ export default function BrokerDashboard() {
           </ResponsiveContainer>
         </AnimatedChart>
 
-        <AnimatedChart title="Distribución de Pólizas">
+        <AnimatedChart
+          title={t(
+            translations.home.brokerDashboard.charts.policyDistribution.title
+          )}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -399,6 +617,10 @@ export default function BrokerDashboard() {
           </ResponsiveContainer>
         </AnimatedChart>
       </div>
+      {/* New User Stats Section */}
+      <UserStatsCards />
+      {/* New User Activity Chart */}
+      <UserActivityChart />
     </motion.div>
   );
 }

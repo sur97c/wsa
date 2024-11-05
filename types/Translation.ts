@@ -25,12 +25,12 @@ export interface ModuleWithTable {
 
 export type ModuleWithTableKey =
     | "management"
-    // | "clients"
-    // | "policies"
-    // | "quotes"
-    // | "claims"
-    // | "payments"
-    // | "reports";
+// | "clients"
+// | "policies"
+// | "quotes"
+// | "claims"
+// | "payments"
+// | "reports";
 
 export interface Translation {
     header: {
@@ -82,6 +82,116 @@ export interface Translation {
     },
     home: {
         title: string;
+        brokerDashboard: {
+            title: string;
+            kpis: {
+                monthlyCommissions: {
+                    title: string;
+                    trend: string;
+                };
+                activeClients: {
+                    title: string;
+                    trend: string;
+                };
+                activePolicies: {
+                    title: string;
+                    trend: string;
+                };
+                renewalRate: {
+                    title: string;
+                    trend: string;
+                };
+            };
+            gauges: {
+                satisfaction: {
+                    name: string;
+                    description: string;
+                };
+                retention: {
+                    name: string;
+                    description: string;
+                };
+                claims: {
+                    name: string;
+                    description: string;
+                };
+                quotes: {
+                    name: string;
+                    description: string;
+                };
+            };
+            charts: {
+                monthlyCommissions: {
+                    title: string;
+                    tooltip: string;
+                };
+                policyDistribution: {
+                    title: string;
+                    types: {
+                        auto: string;
+                        life: string;
+                        home: string;
+                        health: string;
+                    };
+                };
+            };
+            common: {
+                vsLastMonth: string;
+                months: {
+                    jan: string;
+                    feb: string;
+                    mar: string;
+                    apr: string;
+                    may: string;
+                    jun: string;
+                    jul: string;
+                    aug: string;
+                    sep: string;
+                    oct: string;
+                    nov: string;
+                    dec: string;
+                };
+                weekdays: {
+                    mon: string;
+                    tue: string;
+                    wed: string;
+                    thu: string;
+                    fri: string;
+                    sat: string;
+                    sun: string;
+                };
+            };
+            userActivity: {
+                title: string;
+                subtitle: string;
+                activeUsers: string;
+            };
+            userStats: {
+                verifiedUsers: {
+                    title: string;
+                    description: string;
+                };
+                newUsers: {
+                    title: string;
+                    description: string;
+                };
+                activeRegions: {
+                    title: string;
+                    description: string;
+                };
+                userEngagement: {
+                    title: string;
+                    description: string;
+                    lastLogin: string;
+                    verified: string;
+                    unverified: string;
+                };
+                profileCompletion: {
+                    title: string;
+                    description: string;
+                };
+            };
+        }
     },
     quotes: {
         title: string;
