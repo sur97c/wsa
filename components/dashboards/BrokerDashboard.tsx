@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   BarChart,
   Bar,
@@ -8,21 +8,16 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell,
   Legend,
 } from "recharts";
 import {
-  TrendingUp,
   Users,
   FileText,
   DollarSign,
-  Percent,
   Award,
-  Target,
   AlertTriangle,
   ThumbsUp,
   Briefcase,
@@ -71,15 +66,15 @@ const policyTypes = [
   { name: "Salud", value: 20 },
 ];
 
-const userActivity = [
-  { name: "Lun", active: 120 },
-  { name: "Mar", active: 132 },
-  { name: "Mie", active: 125 },
-  { name: "Jue", active: 138 },
-  { name: "Vie", active: 142 },
-  { name: "Sab", active: 98 },
-  { name: "Dom", active: 85 },
-];
+// const userActivity = [
+//   { name: "Lun", active: 120 },
+//   { name: "Mar", active: 132 },
+//   { name: "Mie", active: 125 },
+//   { name: "Jue", active: 138 },
+//   { name: "Vie", active: 142 },
+//   { name: "Sab", active: 98 },
+//   { name: "Dom", active: 85 },
+// ];
 
 // Nuevos datos para los gauges
 const gaugeData = [
@@ -117,7 +112,7 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function BrokerDashboard() {
   const [isVisible, setIsVisible] = useState(false);
-  const [currentValue, setCurrentValue] = useState(0);
+  // const [currentValue, setCurrentValue] = useState(0);
 
   useEffect(() => {
     setIsVisible(true);

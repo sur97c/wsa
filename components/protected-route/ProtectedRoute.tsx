@@ -7,7 +7,7 @@ import { RoleKey } from "@utils/rolesDefinition";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigationLoader } from "@components/navigation-loader/NavigationLoader";
 import {
-//   pageVariants,
+  //   pageVariants,
   skeletonVariants,
   TransitionType,
   transitionVariants,
@@ -23,33 +23,33 @@ interface ProtectedRouteProps {
   transitionType?: TransitionType;
 }
 
-interface LoadingSpinnerProps {
-  isLoading: boolean;
-}
+// interface LoadingSpinnerProps {
+//   isLoading: boolean;
+// }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ isLoading }) => {
-  return (
-    <AnimatePresence>
-      {isLoading && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="flex items-center justify-center w-full h-screen fixed top-0 left-0 bg-white bg-opacity-80 z-50"
-        >
-          <div className="flex flex-col items-center gap-4">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
-            />
-            <span className="text-primary font-medium">Loading...</span>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
+// const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ isLoading }) => {
+//   return (
+//     <AnimatePresence>
+//       {isLoading && (
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           animate={{ opacity: 1 }}
+//           exit={{ opacity: 0 }}
+//           className="flex items-center justify-center w-full h-screen fixed top-0 left-0 bg-white bg-opacity-80 z-50"
+//         >
+//           <div className="flex flex-col items-center gap-4">
+//             <motion.div
+//               animate={{ rotate: 360 }}
+//               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+//               className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+//             />
+//             <span className="text-primary font-medium">Loading...</span>
+//           </div>
+//         </motion.div>
+//       )}
+//     </AnimatePresence>
+//   );
+// };
 
 // const SkeletonManagementPage = () => <div>Management Skeleton</div>;
 const SkeletonQuotesPage = () => <div>Quotes Skeleton</div>;
