@@ -27,7 +27,6 @@ import {
   CheckCircle,
   UserPlus,
   Activity,
-  UserCheck,
 } from "lucide-react";
 import { useTranslations } from "@hooks/useTranslations";
 import { IUser } from "@models/IUser";
