@@ -234,7 +234,7 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
   return (
     <div
       ref={ref}
-      className={`absolute bg-white duration-700 ease-in-out overflow-hidden right-0 transition-all`}
+      className={`absolute duration-700 ease-in-out overflow-hidden right-0 transition-all`}
       style={{
         height: showLogin ? `${dimensions.maxHeight || 0}px` : "0",
         width: showLogin ? `${dimensions.maxWidth || 0}px` : "0",
