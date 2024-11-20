@@ -322,7 +322,7 @@ const NewHome: React.FC = () => {
       <main className="flex flex-col">
         <section
           className="flex flex-col items-center justify-center px-4 md:px-6 
-          text-center mt-16 mb-32"
+          text-center mb-32"
         >
           {" "}
           {/* Ajustamos márgenes */}
