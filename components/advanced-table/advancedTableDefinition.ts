@@ -39,12 +39,14 @@ export interface Column<T extends DataItem> {
 // Table and Row Options
 // =======================================
 export interface TableOption {
+  key: string;
   label: string;
   action: () => void;
   icon?: React.ReactNode;
 }
 
 export interface RowOption<T extends DataItem> {
+  key: string;
   label: string;
   action: (item: T) => void;
   icon?: React.ReactNode;
@@ -155,7 +157,7 @@ export type AdvancedTableProps<T extends DataItem> = BaseTableProps<T> &
 export const TABLE_CONSTANTS = {
   VISIBLE_HEIGHT: 380,
   HEADER_HEIGHT: 48,
-  ROW_HEIGHT: 70,
+  ROW_HEIGHT: 60,
 } as const;
 
 // =======================================

@@ -67,27 +67,27 @@ export default function BrokerDashboard() {
   // Datos existentes...
   const monthlyCommissions = [
     {
-      name: t(translations.home.brokerDashboard.common.months.jan),
+      name: t(translations.dashboard.common.months.jan),
       value: 45000,
     },
     {
-      name: t(translations.home.brokerDashboard.common.months.feb),
+      name: t(translations.dashboard.common.months.feb),
       value: 52000,
     },
     {
-      name: t(translations.home.brokerDashboard.common.months.mar),
+      name: t(translations.dashboard.common.months.mar),
       value: 48000,
     },
     {
-      name: t(translations.home.brokerDashboard.common.months.apr),
+      name: t(translations.dashboard.common.months.apr),
       value: 61000,
     },
     {
-      name: t(translations.home.brokerDashboard.common.months.may),
+      name: t(translations.dashboard.common.months.may),
       value: 55000,
     },
     {
-      name: t(translations.home.brokerDashboard.common.months.jun),
+      name: t(translations.dashboard.common.months.jun),
       value: 67000,
     },
   ];
@@ -95,25 +95,25 @@ export default function BrokerDashboard() {
   const policyTypes = [
     {
       name: t(
-        translations.home.brokerDashboard.charts.policyDistribution.types.auto
+        translations.dashboard.charts.policyDistribution.types?.auto
       ),
       value: 35,
     },
     {
       name: t(
-        translations.home.brokerDashboard.charts.policyDistribution.types.life
+        translations.dashboard.charts.policyDistribution.types?.life
       ),
       value: 25,
     },
     {
       name: t(
-        translations.home.brokerDashboard.charts.policyDistribution.types.home
+        translations.dashboard.charts.policyDistribution.types?.home
       ),
       value: 20,
     },
     {
       name: t(
-        translations.home.brokerDashboard.charts.policyDistribution.types.health
+        translations.dashboard.charts.policyDistribution.types?.health
       ),
       value: 20,
     },
@@ -121,31 +121,31 @@ export default function BrokerDashboard() {
 
   const userActivity = [
     {
-      name: t(translations.home.brokerDashboard.common.weekdays.mon),
+      name: t(translations.dashboard.common.weekdays.mon),
       active: 120,
     },
     {
-      name: t(translations.home.brokerDashboard.common.weekdays.tue),
+      name: t(translations.dashboard.common.weekdays.tue),
       active: 132,
     },
     {
-      name: t(translations.home.brokerDashboard.common.weekdays.wed),
+      name: t(translations.dashboard.common.weekdays.wed),
       active: 125,
     },
     {
-      name: t(translations.home.brokerDashboard.common.weekdays.thu),
+      name: t(translations.dashboard.common.weekdays.thu),
       active: 138,
     },
     {
-      name: t(translations.home.brokerDashboard.common.weekdays.fri),
+      name: t(translations.dashboard.common.weekdays.fri),
       active: 142,
     },
     {
-      name: t(translations.home.brokerDashboard.common.weekdays.sat),
+      name: t(translations.dashboard.common.weekdays.sat),
       active: 98,
     },
     {
-      name: t(translations.home.brokerDashboard.common.weekdays.sun),
+      name: t(translations.dashboard.common.weekdays.sun),
       active: 85,
     },
   ];
@@ -153,39 +153,39 @@ export default function BrokerDashboard() {
   // Nuevos datos para los gauges
   const gaugeData = [
     {
-      name: t(translations.home.brokerDashboard.gauges.satisfaction.name),
+      name: t(translations.dashboard.gauges.satisfaction.name),
       value: 95,
       fill: "#00C49F",
       icon: ThumbsUp,
       description: t(
-        translations.home.brokerDashboard.gauges.satisfaction.description
+        translations.dashboard.gauges.satisfaction.description
       ),
     },
     {
-      name: t(translations.home.brokerDashboard.gauges.retention.name),
+      name: t(translations.dashboard.gauges.retention.name),
       value: 88,
       fill: "#0088FE",
       icon: Users,
       description: t(
-        translations.home.brokerDashboard.gauges.retention.description
+        translations.dashboard.gauges.retention.description
       ),
     },
     {
-      name: t(translations.home.brokerDashboard.gauges.claims.name),
+      name: t(translations.dashboard.gauges.claims.name),
       value: 15,
       fill: "#FF8042",
       icon: AlertTriangle,
       description: t(
-        translations.home.brokerDashboard.gauges.claims.description
+        translations.dashboard.gauges.claims.description
       ),
     },
     {
-      name: t(translations.home.brokerDashboard.gauges.quotes.name),
+      name: t(translations.dashboard.gauges.quotes.name),
       value: 75,
       fill: "#FFBB28",
       icon: Briefcase,
       description: t(
-        translations.home.brokerDashboard.gauges.quotes.description
+        translations.dashboard.gauges.quotes.description
       ),
     },
   ];
@@ -200,20 +200,34 @@ export default function BrokerDashboard() {
     const mockUsers: (IUser & IProfile)[] = Array.from(
       { length: 100 },
       (_, i) => ({
-        id: `user-${i}`,
+        // Propiedades de IUser
         uid: `user-${i}`,
-        firebaseId: `user-${i}`,
         email: `user${i}@example.com`,
         emailVerified: Math.random() > 0.2,
         displayName: `User ${i}`,
-        name: `John${i}`,
-        lastName: `Doe${i}`,
         creationTime: new Date(
           Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
         ).toISOString(),
         lastSignInTime: new Date(
           Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
         ).toISOString(),
+
+        // Propiedades de IProfile
+        id: `user-${i}`,
+        name: `John${i}`,
+        lastName: `Doe${i}`,
+        status: "active",
+        createdAt: new Date(
+          Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
+        ).toISOString(),
+        updatedAt: new Date(
+          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
+        ).toISOString(),
+        createdBy: "system",
+        updatedBy: "system",
+
+        // Propiedad adicional que mencionas
+        firebaseId: `user-${i}`,
       })
     );
 
@@ -260,21 +274,21 @@ export default function BrokerDashboard() {
     >
       <KPICard
         title={t(
-          translations.home.brokerDashboard.userStats.verifiedUsers.title
+          translations.dashboard.userStats.verifiedUsers.title
         )}
         value={`${Math.round(userStats.verifiedPercentage)}%`}
         icon={<CheckCircle className="h-6 w-6 text-white" />}
         color="bg-emerald-500"
       />
       <KPICard
-        title={t(translations.home.brokerDashboard.userStats.newUsers.title)}
+        title={t(translations.dashboard.userStats.newUsers.title)}
         value={userStats.newUsersCount.toString()}
         icon={<UserPlus className="h-6 w-6 text-white" />}
         color="bg-indigo-500"
       />
       <KPICard
         title={t(
-          translations.home.brokerDashboard.userStats.userEngagement.title
+          translations.dashboard.userStats.userEngagement.title
         )}
         value={`${Math.round(
           (userStats.recentLoginCount / userStats.totalUsers) * 100
@@ -294,7 +308,7 @@ export default function BrokerDashboard() {
   // New User Activity Chart Component
   const UserActivityChart = () => (
     <AnimatedChart
-      title={t(translations.home.brokerDashboard.userActivity.title)}
+      title={t(translations.dashboard.userActivity.title)}
     >
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={userActivity}>
@@ -314,7 +328,7 @@ export default function BrokerDashboard() {
             stroke="#6366f1"
             fillOpacity={1}
             fill="url(#activeGradient)"
-            name={t(translations.home.brokerDashboard.userActivity.activeUsers)}
+            name={t(translations.dashboard.userActivity.activeUsers)}
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -395,7 +409,7 @@ export default function BrokerDashboard() {
                 }`}
               >
                 {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%{" "}
-                {t(translations.home.brokerDashboard.common.vsLastMonth)}
+                {t(translations.dashboard.common.vsLastMonth)}
               </motion.p>
             )}
           </div>
@@ -522,7 +536,7 @@ export default function BrokerDashboard() {
       <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title={t(
-            translations.home.brokerDashboard.kpis.monthlyCommissions.title
+            translations.dashboard.kpis.monthlyCommissions.title
           )}
           value="$67,000"
           icon={<DollarSign className="h-6 w-6 text-white" />}
@@ -530,21 +544,21 @@ export default function BrokerDashboard() {
           color="bg-blue-500"
         />
         <KPICard
-          title={t(translations.home.brokerDashboard.kpis.activeClients.title)}
+          title={t(translations.dashboard.kpis.activeClients.title)}
           value="1,234"
           icon={<Users className="h-6 w-6 text-white" />}
           trend={5.2}
           color="bg-green-500"
         />
         <KPICard
-          title={t(translations.home.brokerDashboard.kpis.activePolicies.title)}
+          title={t(translations.dashboard.kpis.activePolicies.title)}
           value="3,567"
           icon={<FileText className="h-6 w-6 text-white" />}
           trend={8.7}
           color="bg-purple-500"
         />
         <KPICard
-          title={t(translations.home.brokerDashboard.kpis.renewalRate.title)}
+          title={t(translations.dashboard.kpis.renewalRate.title)}
           value="92%"
           icon={<Award className="h-6 w-6 text-white" />}
           trend={2.1}
@@ -555,7 +569,7 @@ export default function BrokerDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AnimatedChart
           title={t(
-            translations.home.brokerDashboard.charts.monthlyCommissions.title
+            translations.dashboard.charts.monthlyCommissions.title
           )}
         >
           <ResponsiveContainer width="100%" height="100%">
@@ -580,7 +594,7 @@ export default function BrokerDashboard() {
 
         <AnimatedChart
           title={t(
-            translations.home.brokerDashboard.charts.policyDistribution.title
+            translations.dashboard.charts.policyDistribution.title
           )}
         >
           <ResponsiveContainer width="100%" height="100%">

@@ -13,7 +13,7 @@ export function useProtectedRoute() {
     useEffect(() => {
         if (!authState?.isAuthenticated) {
             dispatch(setShowLogin(true))
-            safeNavigate('/', true)
+            safeNavigate('/')
         }
     }, [authState, safeNavigate, dispatch])
 

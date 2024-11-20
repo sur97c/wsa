@@ -9,7 +9,7 @@ import {
   TableTranslations,
   CellValue
 } from '@components/advanced-table/advancedTableDefinition';
-import { ModuleWithTableKey } from '@/../../types/Translation';
+import { ModuleWithTableKey, TableTranslationBase } from '../../types/Translation';
 
 interface UseAdvancedTableTranslationsProps {
   module: ModuleWithTableKey;
@@ -25,13 +25,13 @@ export function useAdvancedTableTranslations<
   const { t, translations } = useTranslations();
   type EntityType = DataItem<T, string>;
 
-  const getEntityTranslations = () => {
+  const getEntityTranslations = (): TableTranslationBase | null => {
     const moduleTranslations = translations[module]?.advancedTable;
-    if (!moduleTranslations || !moduleTranslations[entity]) {
+    if (!moduleTranslations || !(entity in moduleTranslations)) {
       console.warn(`No translations found for entity "${entity}" in module "${module}"`);
       return null;
     }
-    return moduleTranslations[entity];
+    return moduleTranslations[entity] as TableTranslationBase;
   };
 
   const entityTranslations = getEntityTranslations();
@@ -91,8 +91,8 @@ export function useAdvancedTableTranslations<
   const translateTableOptions = (options: TableOption[]): TableOption[] => {
     return options.map(option => ({
       ...option,
-      label: entityTranslations?.tableOptions?.[option.label] ||
-        t(`${module}.advancedTable.${entity}.${option.label}`) ||
+      label: entityTranslations?.tableOptions?.[option.key] ||
+        t(`${module}.advancedTable.${entity}.tableOptions.${option.key}`) ||
         option.label
     }));
   };
@@ -102,8 +102,8 @@ export function useAdvancedTableTranslations<
   ): RowOption<EntityType>[] => {
     return options.map(option => ({
       ...option,
-      label: entityTranslations?.rowOptions?.[option.label] ||
-        t(`${module}.advancedTable.${entity}.${option.label}`) ||
+      label: entityTranslations?.rowOptions?.[option.key] ||
+        t(`${module}.advancedTable.${entity}.rowOptions.${option.key}`) ||
         option.label
     }));
   };

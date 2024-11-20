@@ -1,7 +1,10 @@
 // models/IProfile.ts
 
-export interface IProfile {
+import type { BaseEntity } from "./BaseEntity"
+
+export interface IProfile extends BaseEntity {
     id: string;
-    lastName: string;
     name: string;
+    lastName: string;
+    status: 'active' | 'inactive'
 }

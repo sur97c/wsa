@@ -27,7 +27,7 @@ export function AuthStateListener({ children }: { children: React.ReactNode }) {
     const handleLogout = useCallback(async () => {
         dispatch(logoutUser())
         setIsSessionTimeoutDialogVisible(false)
-        safeNavigate(`/`, true)
+        safeNavigate(`/`)
     }, [dispatch, safeNavigate])
 
     const handleExtendSession = () => {

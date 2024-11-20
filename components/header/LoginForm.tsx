@@ -1,57 +1,72 @@
-// components/header/LoginForm.tsx
-
 "use client";
 
-import React, { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import { loginUser, recoverAccess } from "@lib/redux/slices/authSlice";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faSignInAlt,
-  faPaperPlane,
-  faArrowLeft,
-  faArrowRight,
-} from "@fortawesome/free-solid-svg-icons";
-import { FlipCard } from "@components/flip-card/FlipCard";
-import { useFlip } from "@providers/flip-provider";
+import { faArrowRight, faSignInAlt } from "@fortawesome/free-solid-svg-icons";
 import { useTranslations } from "@hooks/useTranslations";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { loginUser, setShowLogin } from "@lib/redux/slices/authSlice";
+import { useFlip } from "@providers/flip-provider";
 import LoadingButton from "@components/loading-button/LoadingButton";
-import "@fortawesome/fontawesome-svg-core/styles.css";
-import useMaxDimensions from "@hooks/useMaxDimensions";
+import { useSafeRouter } from "@hooks/useSafeRouter";
+import { X } from "lucide-react";
 
-interface FlipCardProps {
-  showLogin: boolean;
-  onTransitionEnd?: () => void;
+interface LoginFormProps {
+  onClose?: () => void;
 }
 
-const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
   const { t, translations } = useTranslations();
+  const { safeNavigate } = useSafeRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const { toggleFlip } = useFlip();
-  const { ref, dimensions } = useMaxDimensions<HTMLDivElement>();
-  const { loading, error } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+  const { loading, error, auth } = useAppSelector((state) => state.auth);
+  const { toggleFlip } = useFlip();
+
+  useEffect(() => {
+    if (auth?.isAuthenticated) {
+      dispatch(setShowLogin(false));
+      if (onClose) onClose();
+      safeNavigate("/dashboard");
+    }
+  }, [auth?.isAuthenticated, dispatch, onClose, safeNavigate]);
 
   const handleLoginUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(loginUser({ email, password, rememberMe }));
+    await dispatch(loginUser({ email, password, rememberMe }));
   };
 
-  const handleRecoverAccess = async (e: React.FormEvent) => {
+  const handleFlip = (e: React.MouseEvent) => {
     e.preventDefault();
-    dispatch(recoverAccess(email));
+    if (toggleFlip) {
+      toggleFlip();
+    }
   };
 
-  const handleToggleFlip = () => {
-    if (toggleFlip) toggleFlip();
+  const handleCloseLogin = () => {
+    if (onClose) {
+      onClose();
+    }
   };
 
-  const frontContent = (
+  return (
     <div className="front">
+      <button
+        onClick={handleCloseLogin}
+        className="absolute top-4 right-4 text-gray-500 hover:text-[#FF8C00]
+      transition-colors duration-300 z-10"
+      >
+        <X size={24} />
+      </button>
       <div className="bg-white p-2 rounded-md border-b">
         <form onSubmit={handleLoginUser} className="p-4">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-auto w-full">
               <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
@@ -67,7 +82,9 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="form-input px-3 py-2 border border-light rounded md:w-auto w-full"
+                    className="form-input px-3 py-2 border border-light rounded md:w-auto w-full
+                      focus:ring-2 focus:ring-[#FF8C00]/20 focus:border-[#FF8C00]
+                      transition-all duration-300"
                   />
                 </div>
                 <div className="flex-1">
@@ -82,7 +99,9 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="form-input px-3 py-2 border border-light rounded md:w-auto w-full"
+                    className="form-input px-3 py-2 border border-light rounded md:w-auto w-full
+                      focus:ring-2 focus:ring-[#FF8C00]/20 focus:border-[#FF8C00]
+                      transition-all duration-300"
                   />
                 </div>
                 {/* Checkbox para pantallas pequeñas */}
@@ -92,10 +111,11 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={() => setRememberMe(!rememberMe)}
-                      className="form-checkbox text-primary border-gray-300 rounded"
+                      className="form-checkbox text-[#FF8C00] border-gray-300 rounded
+                        focus:ring-[#FF8C00]/20 transition-all duration-300"
                     />
                     <span className="ml-2 text-sm">
-                      {t("loginForm.rememberMe")}
+                      {t(translations.loginForm.rememberMe)}
                     </span>
                   </label>
                 </div>
@@ -110,7 +130,11 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                       ? t(translations.loginForm.signingIn)
                       : t(translations.loginForm.signIn)
                   }
-                  className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-hover w-full"
+                  className="bg-[#1A237E] text-white py-2 px-4 rounded hover:bg-[#FF8C00] w-full
+                    transition-all duration-300 
+                    [filter:grayscale(100%)] hover:[filter:grayscale(0%)]
+                    hover:shadow-lg transform hover:-translate-y-0.5
+                    shadow-md hover:shadow-[#FF8C00]/20"
                   faIcon={faSignInAlt}
                   loading={loading}
                 />
@@ -124,23 +148,25 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={() => setRememberMe(!rememberMe)}
-                      className="form-checkbox text-primary border-gray-300 rounded"
+                      className="form-checkbox text-[#FF8C00] border-gray-300 rounded
+                        focus:ring-[#FF8C00]/20 transition-all duration-300"
                     />
                     <span className="ml-2 text-sm">
-                      {t("loginForm.rememberMe")}
+                      {t(translations.loginForm.rememberMe)}
                     </span>
                   </label>
                 </div>
                 <div className="flex justify-center md:justify-start md:flex-1">
                   <div className="md:flex-none md:mt-2">
                     <span
-                      onClick={handleToggleFlip}
-                      className="cursor-pointer text-sm text-primary hover:text-primary-hover"
+                      onClick={handleFlip}
+                      className="cursor-pointer text-sm text-[#1A237E] hover:text-[#FF8C00]
+                        transition-all duration-300 flex items-center"
                     >
                       {t(translations.loginForm.recoveryAccess)}
                       <FontAwesomeIcon
                         icon={faArrowRight}
-                        className="ml-2 hover:text-primary-hover"
+                        className="ml-2 hover:text-[#FF8C00]"
                       />
                     </span>
                   </div>
@@ -157,95 +183,21 @@ const LoginForm: React.FC<FlipCardProps> = ({ showLogin }) => {
                     ? t(translations.loginForm.signingIn)
                     : t(translations.loginForm.signIn)
                 }
-                className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-hover md:w-auto"
+                className="bg-[#1A237E] text-white py-2 px-4 rounded hover:bg-[#FF8C00] md:w-auto
+                  transition-all duration-300 
+                  [filter:grayscale(100%)] hover:[filter:grayscale(0%)]
+                  hover:shadow-lg transform hover:-translate-y-0.5
+                  shadow-md hover:shadow-[#FF8C00]/20"
                 faIcon={faSignInAlt}
                 loading={loading}
               />
             </div>
           </div>
         </form>
+        {/* {error && (
+          <p className="text-red-500 text-sm text-center mt-2 px-4">{error}</p>
+        )} */}
       </div>
-    </div>
-  );
-
-  const backContent = (
-    <div className="back">
-      <div className="bg-white p-2 rounded-md border-b">
-        <form className="p-2">
-          <div className="flex flex-col">
-            <div className="w-full">
-              <div className="text-center">
-                <span className="block text-sm font-medium text-dark">
-                  {t(translations.loginForm.recoveryAccessInfo)}
-                </span>
-              </div>
-              <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb:ml-2 mb:mr-2">
-                <div className="w-full sm:flex-grow">
-                  <label
-                    htmlFor="recover-email"
-                    className="block text-sm font-medium text-dark mb-2 sm:mb-0 sm:mr-2"
-                  >
-                    {t(translations.loginForm.emailToRecoveryAccess)}
-                  </label>
-                  <input
-                    id="recover-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="form-input w-full px-3 py-2 border border-light rounded"
-                  />
-                </div>
-                <div className="w-full sm:w-auto">
-                  <LoadingButton
-                    type="button"
-                    onClick={handleRecoverAccess}
-                    aria-label={
-                      loading
-                        ? t(translations.loginForm.sendingEmail)
-                        : t(translations.loginForm.sendEmail)
-                    }
-                    className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-hover w-full sm:w-auto"
-                    faIcon={faPaperPlane}
-                    loading={loading}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-center mb-2 mt-4">
-              <button
-                type="button"
-                aria-label={t(translations.loginForm.signIn)}
-                onClick={handleToggleFlip}
-                className="text-primary hover:text-primary-hover flex items-center"
-              >
-                <FontAwesomeIcon
-                  icon={faArrowLeft}
-                  className="mr-2 hover:text-primary-hover"
-                />
-                <span>{t(translations.loginForm.signIn)}</span>
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-
-  return (
-    <div
-      ref={ref}
-      className={`absolute duration-700 ease-in-out overflow-hidden right-0 transition-all`}
-      style={{
-        height: showLogin ? `${dimensions.maxHeight || 0}px` : "0",
-        width: showLogin ? `${dimensions.maxWidth || 0}px` : "0",
-        marginRight: "-18px",
-        zIndex: 40,
-      }}
-    >
-      <FlipCard frontContent={frontContent} backContent={backContent} />
-      {error && (
-        <p className="flex justify-center mt-2 text-red-500">{error}</p>
-      )}
     </div>
   );
 };

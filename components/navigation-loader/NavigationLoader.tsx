@@ -1,9 +1,11 @@
 // components/navigation-loader/NavigationLoader.tsx
+
 "use client"
 
 import { useEffect, useState, createContext, useContext, ReactNode } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslations } from '@hooks/useTranslations'
 
 interface NavigationLoaderContextType {
   isNavigating: boolean
@@ -61,7 +63,8 @@ const spinnerVariants = {
 
 const NavigationLoader = () => {
   const { isNavigating } = useNavigationLoader()
-
+  const { t, translations } = useTranslations();
+  
   return (
     <AnimatePresence>
       {isNavigating && (
@@ -78,7 +81,7 @@ const NavigationLoader = () => {
               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
             />
-            <span className="text-primary font-medium">Loading...</span>
+            <span className="text-primary font-medium">{t(translations.common.loading)}</span>
           </div>
         </motion.div>
       )}

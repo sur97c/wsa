@@ -27,8 +27,8 @@ const UserMenu: React.FC<UserMenuProps> = ({ onClose }) => {
     }, [])
 
     return (
-        <div className="absolute text-primary right-0 mt-2 w-72 bg-white rounded-md shadow-lg z-20 max-h-[90vh] overflow-y-auto">
-            <div className="p-4 border-b">
+        <div className="absolute text-primary top-0 right-14 -mt-4 w-72 bg-white rounded-md shadow-lg z-20 max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border">
                 <div className='flex justify-between'>
                     <p className="font-medium ">{auth?.name || auth?.displayName}</p>
                     <FontAwesomeIcon size='2x' icon={faWindowClose} className="cursor-pointer text-primary hover:text-primary-hover focus:outline-none" onClick={onClose} />

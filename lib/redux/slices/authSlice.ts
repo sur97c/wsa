@@ -62,6 +62,11 @@ export const loginUser = createAsyncThunk(
                 customClaims: userStatus?.customClaims,
                 rememberMe: credentials.rememberMe,
                 lastActivity: Date.now(),
+                status: userProfile?.status || 'inactive',
+                createdAt: userProfile?.createdAt || '',
+                updatedAt: userProfile?.updatedAt || '',
+                createdBy: userProfile?.createdBy || '',
+                updatedBy: userProfile?.updatedBy || '',
             }
 
             console.log('User profile fetched:', userProfile) // Log para debug
@@ -192,7 +197,7 @@ export const authSlice = createSlice({
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.error.message || 'An error occurred';
+                state.error = action.error.message || 'Login failed';
             })
 
             // Check user status cases

@@ -7,7 +7,6 @@ import { RoleKey } from "@utils/rolesDefinition";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigationLoader } from "@components/navigation-loader/NavigationLoader";
 import {
-  //   pageVariants,
   skeletonVariants,
   TransitionType,
   transitionVariants,
@@ -18,64 +17,50 @@ import SkeletonManagementPage from "@components/skeletons/SkeletonManagementPage
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  publicContent?: ReactNode; // Contenido para usuarios no autenticados
   allowedRoles?: RoleKey[];
   skeletonType?: RoleKey;
   transitionType?: TransitionType;
+  mode?: "redirect" | "dual"; // Nuevo modo para manejar contenido dual
+  redirectPath?: string;
 }
 
-// interface LoadingSpinnerProps {
-//   isLoading: boolean;
-// }
+interface LoadingSpinnerProps {
+  isLoading: boolean;
+}
 
-// const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ isLoading }) => {
-//   return (
-//     <AnimatePresence>
-//       {isLoading && (
-//         <motion.div
-//           initial={{ opacity: 0 }}
-//           animate={{ opacity: 1 }}
-//           exit={{ opacity: 0 }}
-//           className="flex items-center justify-center w-full h-screen fixed top-0 left-0 bg-white bg-opacity-80 z-50"
-//         >
-//           <div className="flex flex-col items-center gap-4">
-//             <motion.div
-//               animate={{ rotate: 360 }}
-//               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-//               className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
-//             />
-//             <span className="text-primary font-medium">Loading...</span>
-//           </div>
-//         </motion.div>
-//       )}
-//     </AnimatePresence>
-//   );
-// };
-
-// const SkeletonManagementPage = () => <div>Management Skeleton</div>;
-const SkeletonQuotesPage = () => <div>Quotes Skeleton</div>;
-const SkeletonPoliciesPage = () => <div>Policies Skeleton</div>;
-const SkeletonHomePage = () => <div>Home Skeleton</div>;
-const SkeletonClaimsPage = () => <div>Claims Skeleton</div>;
-const SkeletonPaymentsPage = () => <div>Payments Skeleton</div>;
-const SkeletonClientsPage = () => <div>Clients Skeleton</div>;
-const SkeletonReportsPage = () => <div>Reports Skeleton</div>;
-
-const skeletonComponents: Record<RoleKey, React.ComponentType> = {
-  management: SkeletonManagementPage,
-  quotes: SkeletonQuotesPage,
-  policies: SkeletonPoliciesPage,
-  home: SkeletonHomePage,
-  claims: SkeletonClaimsPage,
-  payments: SkeletonPaymentsPage,
-  clients: SkeletonClientsPage,
-  reports: SkeletonReportsPage,
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ isLoading }) => {
+  return (
+    <AnimatePresence>
+      {isLoading && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="flex items-center justify-center w-full h-screen fixed top-0 left-0 bg-white bg-opacity-80 z-50"
+        >
+          <div className="flex flex-col items-center gap-4">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+            />
+            <span className="text-primary font-medium">Loading...</span>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 };
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
+  publicContent,
   allowedRoles = [],
   skeletonType,
   transitionType = "default",
+  mode = "redirect",
+  redirectPath = "/",
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
@@ -83,19 +68,37 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const auth = useAuthState();
   const { setIsNavigating } = useNavigationLoader();
 
+  const hasRequiredRole = (
+    userRoles: RoleKey[] | undefined,
+    requiredRoles: RoleKey[]
+  ): boolean => {
+    if (!userRoles) return false;
+    return requiredRoles.some((role) => requiredRoles.includes(role));
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
-      if (auth === null || !auth.isAuthenticated) {
+      if (mode === "dual") {
+        setTimeout(() => {
+          setShowSkeleton(false);
+          setTimeout(() => {
+            setIsLoading(false);
+            setIsNavigating(false);
+          }, 300);
+        }, 800);
+        return;
+      }
+      
+      if (!auth?.isAuthenticated) {
         setIsNavigating(true);
-        safeNavigate("/", true);
+        safeNavigate(redirectPath);
       } else if (
         allowedRoles.length > 0 &&
         !hasRequiredRole(auth.customClaims?.roles, allowedRoles)
       ) {
         setIsNavigating(true);
-        safeNavigate("/unauthorized", true);
+        safeNavigate("/unauthorized");
       } else {
-        // Simular un pequeño delay para mostrar el skeleton
         setTimeout(() => {
           setShowSkeleton(false);
           setTimeout(() => {
@@ -107,49 +110,64 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     };
 
     checkAuth();
-  }, [auth, safeNavigate, allowedRoles, setIsNavigating]);
-
-  const hasRequiredRole = (
-    userRoles: RoleKey[] | undefined,
-    requiredRoles: RoleKey[]
-  ): boolean => {
-    if (!userRoles) return false;
-    return userRoles.some((role) => requiredRoles.includes(role));
-  };
+  }, [auth, safeNavigate, allowedRoles, setIsNavigating, mode, redirectPath]);
 
   const validTransitionType = transitionTypes.includes(transitionType)
     ? transitionType
     : "default";
 
+  const renderContent = () => {
+    if (mode === "dual") {
+      return auth?.isAuthenticated ? children : publicContent;
+    }
+    return children;
+  };
+
+  const loadingSpinner = () => {
+    setShowSkeleton(false);
+    return (
+      <LoadingSpinner isLoading={true} />
+    );
+  };
+
+  const skeletonComponents: Record<RoleKey, React.ComponentType> = {
+    dashboard: loadingSpinner,
+    management: SkeletonManagementPage,
+    quotes: loadingSpinner,
+    policies: loadingSpinner,
+    home: loadingSpinner,
+    claims: loadingSpinner,
+    payments: loadingSpinner,
+    clients: loadingSpinner,
+    reports: loadingSpinner,
+  };
+
   return (
-    <>
-      {/* <LoadingSpinner isLoading={isLoading && !showSkeleton} /> */}
-      <AnimatePresence mode="wait" initial={false}>
-        {showSkeleton && skeletonType ? (
-          <motion.div
-            key="skeleton"
-            variants={skeletonVariants}
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            className="w-full"
-          >
-            {React.createElement(skeletonComponents[skeletonType])}
-          </motion.div>
-        ) : !isLoading ? (
-          <motion.div
-            key="content"
-            variants={transitionVariants[validTransitionType]}
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            className="w-full"
-          >
-            {children}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </>
+    <AnimatePresence mode="wait" initial={false}>
+      {showSkeleton && skeletonType ? (
+        <motion.div
+          key="skeleton"
+          variants={skeletonVariants}
+          initial="initial"
+          animate="enter"
+          exit="exit"
+          className="w-full"
+        >
+          {React.createElement(skeletonComponents[skeletonType])}
+        </motion.div>
+      ) : !isLoading ? (
+        <motion.div
+          key="content"
+          variants={transitionVariants[validTransitionType]}
+          initial="initial"
+          animate="enter"
+          exit="exit"
+          className="w-full"
+        >
+          {renderContent()}
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 };
 

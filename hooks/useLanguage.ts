@@ -12,7 +12,11 @@ export function useLanguage() {
         const storedLang = localStorage.getItem('preferredLanguage')
         if (storedLang && storedLang !== language) {
             setLanguage(storedLang)
-            router.push(`/${storedLang}${window.location.pathname.substring(3)}`)
+            // Preserve the route group (public/protected) when changing language
+            const path = window.location.pathname
+            const segments = path.split('/').filter(Boolean)
+            segments[0] = storedLang // Replace language segment
+            router.push(`/${segments.join('/')}`)
         } else if (!storedLang) {
             localStorage.setItem('preferredLanguage', language)
         }
@@ -21,7 +25,11 @@ export function useLanguage() {
     const changeLanguage = (newLang: string) => {
         localStorage.setItem('preferredLanguage', newLang)
         setLanguage(newLang)
-        router.push(`/${newLang}${window.location.pathname.substring(3)}`)
+        // Preserve the route group when changing language
+        const path = window.location.pathname
+        const segments = path.split('/').filter(Boolean)
+        segments[0] = newLang // Replace language segment
+        router.push(`/${segments.join('/')}`)
     }
 
     return { language, changeLanguage }

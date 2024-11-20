@@ -3,12 +3,21 @@
 import { Translation } from '../types/Translation'
 
 export const enTranslations: Translation = {
+    common: {
+        loading: "Loading...",
+        error: "Error"
+    },
     header: {
         title: "Welcome to WSA Broker portal",
+        menu: {
+            about: "About Us",
+            services: "Services",
+            contact: "Contact"
+        },
         welcome: "Hello, {{name}}!",
         showLogin: "Sign in",
         closingSession: "Closing session...",
-        closeLogin: "Close"
+        closeLogin: "Close",
     },
     userMenu: {
         editProfile: "View and edit profile",
@@ -52,114 +61,133 @@ export const enTranslations: Translation = {
     },
     home: {
         title: "Home",
-        brokerDashboard: {
-            title: "Key Performance Indicators",
-            kpis: {
-                monthlyCommissions: {
-                    title: "Monthly Commissions",
-                    trend: "vs last month"
-                },
-                activeClients: {
-                    title: "Active Clients",
-                    trend: "vs last month"
-                },
-                activePolicies: {
-                    title: "Active Policies",
-                    trend: "vs last month"
-                },
-                renewalRate: {
-                    title: "Renewal Rate",
-                    trend: "vs last month"
-                }
+        spanish: "Spanish",
+        english: "English",
+        welcome: "Welcome to WSA Brokers",
+        message: "Your trusted platform for managing insurance policies and surety bonds",
+        login: "Sign in",
+        cards: [
+            {
+                title: "Comprehensive Protection",
+                description: "Expert management of insurance and surety bonds tailored to your needs"
             },
-            gauges: {
-                satisfaction: {
-                    name: "Satisfaction",
-                    description: "Customer satisfaction"
-                },
-                retention: {
-                    name: "Retention",
-                    description: "Customer retention rate"
-                },
-                claims: {
-                    name: "Claims",
-                    description: "Claims rate"
-                },
-                quotes: {
-                    name: "Quotes",
-                    description: "Quote conversion"
-                }
+            {
+                title: "Risk Management",
+                description: "Strategic advice and solutions to safeguard your assets and operations"
             },
-            charts: {
-                monthlyCommissions: {
-                    title: "Monthly Commissions",
-                    tooltip: "Commissions"
-                },
-                policyDistribution: {
-                    title: "Policy Distribution",
-                    types: {
-                        auto: "Auto",
-                        life: "Life",
-                        home: "Home",
-                        health: "Health"
-                    }
-                }
+            {
+                title: "Personalized Service",
+                description: "Dedicated support from experienced brokers with industry expertise"
+            }
+        ]
+    },
+    dashboard: {
+        title: "Key Performance Indicators",
+        kpis: {
+            monthlyCommissions: {
+                title: "Monthly Commissions",
+                trend: "vs last month"
             },
-            common: {
-                vsLastMonth: "vs last month",
-                months: {
-                    jan: "Jan",
-                    feb: "Feb",
-                    mar: "Mar",
-                    apr: "Apr",
-                    may: "May",
-                    jun: "Jun",
-                    jul: "Jul",
-                    aug: "Aug",
-                    sep: "Sep",
-                    oct: "Oct",
-                    nov: "Nov",
-                    dec: "Dec"
-                },
-                weekdays: {
-                    mon: "Mon",
-                    tue: "Tue",
-                    wed: "Wed",
-                    thu: "Thu",
-                    fri: "Fri",
-                    sat: "Sat",
-                    sun: "Sun"
-                }
+            activeClients: {
+                title: "Active Clients",
+                trend: "vs last month"
             },
-            userActivity: {
-                title: "User Activity",
-                subtitle: "Active users per day",
-                activeUsers: "Active users"
+            activePolicies: {
+                title: "Active Policies",
+                trend: "vs last month"
             },
-            userStats: {
-                verifiedUsers: {
-                    title: "Verified Users",
-                    description: "Percentage of email-verified users"
-                },
-                newUsers: {
-                    title: "New Users",
-                    description: "Registered in the last 30 days"
-                },
-                activeRegions: {
-                    title: "Active Regions",
-                    description: "Geographical user distribution"
-                },
-                userEngagement: {
-                    title: "User Engagement",
-                    description: "Engagement metrics",
-                    lastLogin: "Last login",
-                    verified: "Verified",
-                    unverified: "Unverified"
-                },
-                profileCompletion: {
-                    title: "Complete Profiles",
-                    description: "Users with completed profiles"
+            renewalRate: {
+                title: "Renewal Rate",
+                trend: "vs last month"
+            }
+        },
+        gauges: {
+            satisfaction: {
+                name: "Satisfaction",
+                description: "Customer satisfaction"
+            },
+            retention: {
+                name: "Retention",
+                description: "Customer retention rate"
+            },
+            claims: {
+                name: "Claims",
+                description: "Claims rate"
+            },
+            quotes: {
+                name: "Quotes",
+                description: "Quote conversion"
+            }
+        },
+        charts: {
+            monthlyCommissions: {
+                title: "Monthly Commissions",
+                tooltip: "Commissions"
+            },
+            policyDistribution: {
+                title: "Policy Distribution",
+                types: {
+                    auto: "Auto",
+                    life: "Life",
+                    home: "Home",
+                    health: "Health"
                 }
+            }
+        },
+        common: {
+            vsLastMonth: "vs last month",
+            months: {
+                jan: "Jan",
+                feb: "Feb",
+                mar: "Mar",
+                apr: "Apr",
+                may: "May",
+                jun: "Jun",
+                jul: "Jul",
+                aug: "Aug",
+                sep: "Sep",
+                oct: "Oct",
+                nov: "Nov",
+                dec: "Dec"
+            },
+            weekdays: {
+                mon: "Mon",
+                tue: "Tue",
+                wed: "Wed",
+                thu: "Thu",
+                fri: "Fri",
+                sat: "Sat",
+                sun: "Sun"
+            }
+        },
+        userActivity: {
+            title: "User Activity",
+            subtitle: "Active users per day",
+            activeUsers: "Active users"
+        },
+        userStats: {
+            verifiedUsers: {
+                title: "Verified Users",
+                description: "Percentage of email-verified users"
+            },
+            newUsers: {
+                title: "New Users",
+                description: "Registered in the last 30 days"
+            },
+            activeRegions: {
+                title: "Active Regions",
+                description: "Geographical user distribution"
+            },
+            userEngagement: {
+                title: "User Engagement",
+                description: "Engagement metrics",
+                lastLogin: "Last login",
+                verified: "Verified",
+                unverified: "Unverified"
+            },
+            profileCompletion: {
+                title: "Complete Profiles",
+                description: "Users with completed profiles"
             }
         }
     },
@@ -182,17 +210,44 @@ export const enTranslations: Translation = {
         title: "Management",
         advancedTable: {
             users: {
+                editCreate: {
+                    fields: {
+                        uid: "ID",
+                        email: "Email",
+                        emailVerified: "Email verified",
+                        displayName: "Display name",
+                        name: "Name",
+                        lastName: "Last name",
+                        createdAt: "Creation at",
+                        lastSignInTime: "Last access"
+                    },
+                    edit: {
+                        title: "Edit User",
+                        success: "User updated successfully",
+                        error: "Error updating user"
+                    },
+                    create: {
+                        title: "Create User",
+                        success: "User created successfully",
+                        error: "Error creating user"
+                    },
+                    status: {
+                        active: "Active",
+                        inactive: "Inactive"
+                    }
+                },
                 columns: {
-                    id: "ID",
+                    uid: "ID",
                     email: "Email",
                     emailVerified: "Verified",
                     displayName: "Display Name",
                     name: "Name",
                     lastName: "Last Name",
-                    creationTime: "Creation Time",
+                    createdAt: "Created At",
                     lastSignInTime: "Last SignIn Time"
                 },
                 tableOptions: {
+                    source: "Change Source",
                     exportCsv: "Export to CSV"
                 },
                 rowOptions: {
@@ -243,6 +298,30 @@ export const enTranslations: Translation = {
         boolean: {
             true: "Yes",
             false: "No"
+        }
+    },
+    validation: {
+        required: "This field is required",
+        invalidEmail: "Email address is not valid",
+        minLength: "Must be at least {{count}} characters",
+        maxLength: "Must not exceed {{count}} characters",
+        invalidFormat: "Invalid format",
+        passwordMismatch: "Passwords do not match",
+        uniqueValue: "This value already exists",
+        invalidNumber: "Must be a valid number",
+        invalidDate: "Invalid date",
+        futureDate: "Date must be in the future",
+        pastDate: "Date must be in the past"
+    },
+    errors: {
+        notFound: {
+            title: 'Page Not Found',
+            message: 'Sorry, the page you are looking for does not exist or has been moved.'
+        },
+        generic: {
+            title: 'Something went wrong!',
+            message: 'An error has occurred. Please try again.',
+            retry: 'Try again'
         }
     }
 }

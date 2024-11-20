@@ -1,5 +1,4 @@
 // actions/authActions.ts
-
 'use server'
 
 import { authAdmin, dbAdmin } from '@lib/firebase/firebaseAdmin'

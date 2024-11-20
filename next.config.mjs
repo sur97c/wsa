@@ -1,11 +1,20 @@
 // next.config.mjs
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-        unoptimized: true,
-        domains: ['localhost'],
-    },
+  output: "standalone",
+  images: {
+    unoptimized: true,
+    domains: ["localhost"],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/es",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

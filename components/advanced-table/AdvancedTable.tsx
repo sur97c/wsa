@@ -1,6 +1,12 @@
 // components/advanced-table/AdvancedTable.tsx
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -150,72 +156,82 @@ function AdvancedTable<T extends DataItem>({
     data,
   ]);
 
-  const handleScroll = useCallback(
-    debounce(
-      ({
-        scrollOffset,
-        scrollDirection,
-      }: {
-        scrollOffset: number;
-        scrollDirection: "forward" | "backward";
-      }) => {
-        if (scrollDirection === "backward") return;
+  const handleScroll = useMemo(
+    () =>
+      debounce(
+        ({
+          scrollOffset,
+          scrollDirection,
+        }: {
+          scrollOffset: number;
+          scrollDirection: "forward" | "backward";
+        }) => {
+          if (scrollDirection === "backward") return;
 
-        const totalHeight = ROW_HEIGHT * data.length;
-        if (
-          totalHeight - scrollOffset <= VISIBLE_HEIGHT * 1.5 &&
-          !loading &&
-          hasMore &&
-          data.length >= itemsPerPage
-        ) {
-          loadMoreData();
-        }
-      },
-      150
-    ),
-    [loading, hasMore, loadMoreData, data.length, ROW_HEIGHT, itemsPerPage]
+          const totalHeight = ROW_HEIGHT * data.length;
+          if (
+            totalHeight - scrollOffset <= VISIBLE_HEIGHT * 1.5 &&
+            !loading &&
+            hasMore &&
+            data.length >= itemsPerPage
+          ) {
+            loadMoreData();
+          }
+        },
+        150
+      ),
+    [loading, hasMore, loadMoreData, data.length, itemsPerPage]
   );
+
+  useEffect(() => {
+    return () => {
+      handleScroll.cancel();
+    };
+  }, [handleScroll]);
 
   // ==============================================
   // Event Handlers
   // ==============================================
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setPage(1);
     setData([]);
     setHasMore(true);
-  };
+  }, []);
 
-  const handleSort = (column: keyof T) => {
-    setSortDirection((prevDirection) =>
-      sortColumn === column && prevDirection === "asc" ? "desc" : "asc"
-    );
-    setSortColumn(column);
-    setPage(1);
-    setData([]);
-    setHasMore(true);
-  };
+  const handleSort = useCallback(
+    (column: keyof T) => {
+      setSortDirection((prevDirection) =>
+        sortColumn === column && prevDirection === "asc" ? "desc" : "asc"
+      );
+      setSortColumn(column);
+      setPage(1);
+      setData([]);
+      setHasMore(true);
+    },
+    [sortColumn]
+  );
 
-  const handleRowSelect = (id: number | string) => {
+  const handleRowSelect = useCallback((id: number | string) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
     );
-  };
+  }, []);
 
-  const handleSelectAll = () => {
+  const handleSelectAll = useCallback(() => {
     if (allSelected) {
       setSelectedRows([]);
     } else {
       setSelectedRows(data.map((item) => item.id));
     }
     setAllSelected(!allSelected);
-  };
+  }, [allSelected, data]);
 
   // ==============================================
   // Helper Functions
   // ==============================================
-  const getAlignmentClass = (align?: Alignment): string => {
+  const getAlignmentClass = useCallback((align?: Alignment): string => {
     switch (align) {
       case "left":
         return "text-left";
@@ -228,7 +244,7 @@ function AdvancedTable<T extends DataItem>({
       default:
         return "text-left";
     }
-  };
+  }, []);
 
   // ==============================================
   // Filter Functions
@@ -253,12 +269,12 @@ function AdvancedTable<T extends DataItem>({
     }
   }, [selectedColumn, selectedOperator, filterValue]);
 
-  const removeFilter = (index: number) => {
+  const removeFilter = useCallback((index: number) => {
     setFilters((prev) => prev.filter((_, i) => i !== index));
     setPage(1);
     setData([]);
     setHasMore(true);
-  };
+  }, []);
 
   const getOperatorOptions = (columnType: ColumnType): FilterOperator[] => {
     const baseOperators: FilterOperator[] = ["eq", "neq"];
@@ -420,23 +436,26 @@ function AdvancedTable<T extends DataItem>({
   // ==============================================
   // Render Helper Functions
   // ==============================================
-  const renderCellContent = (column: Column<T>, item: T): React.ReactNode => {
-    const value = item[column.key];
-    let content: React.ReactNode;
+  const renderCellContent = useCallback(
+    (column: Column<T>, item: T): React.ReactNode => {
+      const value = item[column.key];
+      let content: React.ReactNode;
 
-    if (column.render) {
-      content = column.render(value, item);
-    } else if (React.isValidElement(value)) {
-      content = value;
-    } else if (typeof value === "object") {
-      content = JSON.stringify(value);
-    } else {
-      content = String(value);
-    }
+      if (column.render) {
+        content = column.render(value, item);
+      } else if (React.isValidElement(value)) {
+        content = value;
+      } else if (typeof value === "object") {
+        content = JSON.stringify(value);
+      } else {
+        content = String(value);
+      }
 
-    const alignmentClass = getAlignmentClass(column.align);
-    return <div className={`w-full ${alignmentClass}`}>{content}</div>;
-  };
+      const alignmentClass = getAlignmentClass(column.align);
+      return <div className={`w-full ${alignmentClass}`}>{content}</div>;
+    },
+    [getAlignmentClass]
+  );
 
   const renderFilterInput = useCallback(() => {
     if (!selectedColumn) return null;
@@ -658,13 +677,14 @@ function AdvancedTable<T extends DataItem>({
       </div>
     ),
     [
-      translatedColumns,
       selectedRows,
-      showRowMenu,
       handleRowSelect,
+      showRowMenu,
+      translatedColumns,
       renderCellContent,
+      RowActions,
     ]
-  ); //RowActions,
+  );
 
   const Row = useCallback(
     ({ index, style }: { index: number; style: React.CSSProperties }) => {
@@ -702,7 +722,7 @@ function AdvancedTable<T extends DataItem>({
                   {renderCellContent(column, item)}
                 </div>
               ))}
-              <div className="py-3 text-center w-24 flex-shrink-0">
+              <div className="py-3 text-center w-12 flex-shrink-0">
                 <RowActions
                   item={item}
                   showMenu={showRowMenu === item.id}
@@ -715,115 +735,76 @@ function AdvancedTable<T extends DataItem>({
       );
     },
     [
+      // data,
+      // translatedColumns,
+      // selectedRows,
+      // showRowMenu,
+      // handleRowSelect,
+      // renderCellContent,
       data,
-      translatedColumns,
       selectedRows,
-      showRowMenu,
       handleRowSelect,
+      translatedColumns,
+      showRowMenu,
+      MobileCard,
       renderCellContent,
+      getAlignmentClass,
+      RowActions,
     ]
   );
-  // MobileCard, RowActions,
 
-  const renderTableHeader = () => (
-    <div
-      className="flex text-gray-600 text-sm bg-gray-100 tableHeader"
-      style={{
-        height: `${HEADER_HEIGHT}px`,
-        filter: isEditing ? "blur(0.1px)" : "none",
-        pointerEvents: isEditing ? "none" : "auto",
-      }}
-    >
-      <div className="py-3 text-center w-12 flex-shrink-0">
-        <input
-          type="checkbox"
-          checked={allSelected}
-          onChange={handleSelectAll}
-        />
-      </div>
-      {translatedColumns.map((column) => (
-        <div
-          key={String(column.key)}
-          className={`py-3 px-2 cursor-pointer flex items-center justify-center text-center`}
-          style={{ width: column.width || "auto" }}
-          onClick={() => handleSort(column.key)}
-        >
-          <div className="flex items-center justify-center">
-            {column.label}
-            {sortColumn === column.key && (
-              <FontAwesomeIcon
-                icon={faChevronDown}
-                className={`ml-1 ${
-                  sortDirection === "asc" ? "transform rotate-180" : ""
-                }`}
-              />
-            )}
-          </div>
-        </div>
-      ))}
-      <div className="py-3 text-center w-24 flex-shrink-0">
-        {tableTranslations.actions}
-      </div>
-    </div>
-  );
-
-  const renderTableRowEdit = useCallback(() => {
-    if (!isEditing) return null;
-
-    return (
-      <CSSTransition
-        in={isEditing}
-        timeout={300}
-        classNames={{
-          enter: styles.editRowTransitionEnter,
-          enterActive: styles.editRowTransitionEnterActive,
-          exit: styles.editRowTransitionExit,
-          exitActive: styles.editRowTransitionExitActive,
-        }}
-        unmountOnExit
-      >
-        <div ref={editRef} className={styles.editRow}>
-          <div className={styles.editContent}>{editComponent}</div>
-        </div>
-      </CSSTransition>
-    );
-  }, [isEditing, editComponent]);
-
-  const renderFilterSection = () => (
-    <div className="flex flex-wrap sm:flex-nowrap w-auto">
-      <select
-        className="border border-gray-300 rounded-md bg-white whitespace-nowrap sm:mr-2"
-        value={selectedColumn ? String(selectedColumn.key) : ""}
-        onChange={async (e) => {
-          const column = translatedColumns.find(
-            (col) => String(col.key) === e.target.value
-          );
-          setSelectedColumn(column || null);
-          setSelectedOperator("eq");
-          setFilterValue(null);
-          if (column?.type === "select" && column.fetchOptions) {
-            try {
-              const options = await column.fetchOptions();
-              setSelectOptions(options);
-            } catch (error) {
-              console.error("Error fetching column options:", error);
-              setSelectOptions([]);
-            }
-          }
+  const renderTableHeader = useCallback(
+    () => (
+      <div
+        className="flex text-gray-600 text-sm bg-gray-100 tableHeader"
+        style={{
+          height: `${HEADER_HEIGHT}px`,
+          filter: isEditing ? "blur(0.1px)" : "none",
+          pointerEvents: isEditing ? "none" : "auto",
         }}
       >
-        <option value="">{tableTranslations.filters.selectColumn}</option>
+        <div className="py-3 text-center w-12 flex-shrink-0">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            onChange={handleSelectAll}
+          />
+        </div>
         {translatedColumns.map((column) => (
-          <option key={String(column.key)} value={String(column.key)}>
-            {column.label}
-          </option>
+          <div
+            key={String(column.key)}
+            className={`py-3 px-2 cursor-pointer flex items-center justify-center text-center`}
+            style={{ width: column.width || "auto" }}
+            onClick={() => handleSort(column.key)}
+          >
+            <div className="flex items-center justify-center">
+              {column.label}
+              {sortColumn === column.key && (
+                <FontAwesomeIcon
+                  icon={faChevronDown}
+                  className={`ml-1 ${
+                    sortDirection === "asc" ? "transform rotate-180" : ""
+                  }`}
+                />
+              )}
+            </div>
+          </div>
         ))}
-      </select>
-      {renderFilterOperatorSelect()}
-    </div>
+        <div className="py-3 text-center w-12 flex-shrink-0"></div>
+      </div>
+    ),
+    [
+      allSelected,
+      handleSelectAll,
+      translatedColumns,
+      handleSort,
+      sortColumn,
+      sortDirection,
+      isEditing,
+    ]
   );
 
-  const renderFilterOperatorSelect = () => {
+  const renderFilterOperatorSelect = useCallback(() => {
     if (!selectedColumn) return null;
     const operators = getOperatorOptions(selectedColumn.type);
     return (
@@ -856,26 +837,93 @@ function AdvancedTable<T extends DataItem>({
         )}
       </>
     );
-  };
+  }, [addFilter, filterValue, renderFilterInput, selectedColumn, selectedOperator, tableTranslations.filters]);
 
-  const renderTableMenu = () => (
-    <div className="relative">
-      <div className="absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
-        {translatedTableOptions.map((option, index) => (
-          <button
-            key={index}
-            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            onClick={() => {
-              option.action();
-              setShowTableMenu(false);
-            }}
-          >
-            {option.icon && <span className="mr-2">{option.icon}</span>}
-            {option.label}
-          </button>
-        ))}
+  const renderTableRowEdit = useCallback(() => {
+    if (!isEditing) return null;
+
+    return (
+      <CSSTransition
+        in={isEditing}
+        timeout={300}
+        classNames={{
+          enter: styles.editRowTransitionEnter,
+          enterActive: styles.editRowTransitionEnterActive,
+          exit: styles.editRowTransitionExit,
+          exitActive: styles.editRowTransitionExitActive,
+        }}
+        unmountOnExit
+      >
+        <div ref={editRef} className={styles.editRow}>
+          <div className={styles.editContent}>{editComponent}</div>
+        </div>
+      </CSSTransition>
+    );
+  }, [isEditing, editComponent]);
+
+  const renderFilterSection = useCallback(
+    () => (
+      <div className="flex flex-wrap sm:flex-nowrap w-auto">
+        <select
+          className="border border-gray-300 rounded-md bg-white whitespace-nowrap sm:mr-2"
+          value={selectedColumn ? String(selectedColumn.key) : ""}
+          onChange={async (e) => {
+            const column = translatedColumns.find(
+              (col) => String(col.key) === e.target.value
+            );
+            setSelectedColumn(column || null);
+            setSelectedOperator("eq");
+            setFilterValue(null);
+            if (column?.type === "select" && column.fetchOptions) {
+              try {
+                const options = await column.fetchOptions();
+                setSelectOptions(options);
+              } catch (error) {
+                console.error("Error fetching column options:", error);
+                setSelectOptions([]);
+              }
+            }
+          }}
+        >
+          <option value="">{tableTranslations.filters.selectColumn}</option>
+          {translatedColumns.map((column) => (
+            <option key={String(column.key)} value={String(column.key)}>
+              {column.label}
+            </option>
+          ))}
+        </select>
+        {renderFilterOperatorSelect()}
       </div>
-    </div>
+    ),
+    [
+      renderFilterOperatorSelect,
+      selectedColumn,
+      translatedColumns,
+      tableTranslations.filters,
+    ]
+  );
+
+  const renderTableMenu = useCallback(
+    () => (
+      <div className="relative">
+        <div className="absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
+          {translatedTableOptions.map((option, index) => (
+            <button
+              key={index}
+              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => {
+                option.action();
+                setShowTableMenu(false);
+              }}
+            >
+              {option.icon && <span className="mr-2">{option.icon}</span>}
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    ),
+    [translatedTableOptions]
   );
 
   const renderHeader = useCallback(() => {
@@ -960,7 +1008,7 @@ function AdvancedTable<T extends DataItem>({
               return (
                 <div
                   key={index}
-                  className={`bg-gray-100 text-sm rounded-full px-3 py-1 text-xs flex items-center`}
+                  className={`bg-gray-100 text-primary text-sm rounded-full px-3 py-1 text-xs flex items-center`}
                 >
                   <span className="flex items-center gap-1 text-center">
                     <span className="font-medium">{columnLabel}</span>
@@ -995,6 +1043,10 @@ function AdvancedTable<T extends DataItem>({
     showTableMenu,
     handleSearch,
     onAdd,
+    formatFilterValue,
+    removeFilter,
+    renderFilterSection,
+    renderTableMenu,
   ]);
 
   const renderFooter = useCallback(

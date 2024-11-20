@@ -5,20 +5,15 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faSignInAlt,
   faSignOutAlt,
   faUserCircle,
-  faTimes,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTranslations } from "@hooks/useTranslations";
 import { RootState, useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { logoutUser, setShowLogin } from "@lib/redux/slices/authSlice";
 import { useSafeRouter } from "@hooks/useSafeRouter";
-import { useFlip } from "@providers/flip-provider";
 import Image from "next/image";
-import LoginForm from "@components/header/LoginForm";
-// import LoadingButton from "@components/loading-button/LoadingButton";
 import Navigation from "@components/navigation/Navigation";
 import UserMenu from "@components/user-menu/UserMenu";
 import "@fortawesome/fontawesome-svg-core/styles.css";
@@ -26,25 +21,17 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 export default function Header() {
   const { t, translations } = useTranslations();
   const { safeNavigate } = useSafeRouter();
-  const { isFlipped, toggleFlip } = useFlip();
   const { loading, error } = useAppSelector((state) => state.auth);
   const [isLoadingPage, setIsLoadingPage] = useState(true);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const auth = useAppSelector((state: RootState) => state.auth.auth);
-  const showLogin = useAppSelector((state: RootState) => state.auth.showLogin);
   const dispatch = useAppDispatch();
-
-  const toggleLogin = () => {
-    if (isFlipped && toggleFlip)
-      toggleFlip(() => dispatch(setShowLogin(!showLogin)));
-    else dispatch(setShowLogin(!showLogin));
-  };
 
   const handleLogoutUser = () => {
     dispatch(setShowLogin(false));
     dispatch(logoutUser());
     setIsUserMenuOpen(false);
-    safeNavigate(`/`, true);
+    safeNavigate(`/`);
   };
 
   const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
@@ -55,7 +42,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-light text-white">
+      <header className="text-white">
         <nav className="flex justify-between ml-4 mr-4">
           <Image
             src="/images/WSA-logo.png"
@@ -81,7 +68,7 @@ export default function Header() {
                       {error}
                     </p>
                   )}
-                  {auth && auth?.isAuthenticated ? (
+                  {auth && auth?.isAuthenticated && (
                     <div className="relative">
                       <div className="flex justify-center text-primary">
                         <button
@@ -113,52 +100,13 @@ export default function Header() {
                             }
                             className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-hover w-full md:w-auto flex items-center justify-center"
                           >
-                            <FontAwesomeIcon
-                              icon={faSignOutAlt}
-                            />
+                            <FontAwesomeIcon icon={faSignOutAlt} />
                           </button>
-                          {/* <LoadingButton
-                            type="button"
-                            onClick={handleLogoutUser}
-                            aria-label={
-                              loading
-                                ? t(translations.header.closingSession)
-                                : t(translations.header.closeLogin)
-                            }
-                            className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-hover w-full md:w-auto flex items-center justify-center"
-                            faIcon={faSignOutAlt}
-                            loading={loading}
-                          /> */}
                         </div>
                       </div>
                       {isUserMenuOpen && (
                         <UserMenu onClose={() => setIsUserMenuOpen(false)} />
                       )}
-                    </div>
-                  ) : (
-                    <div className="relative">
-                      <div className="flex items-center justify-end">
-                        <button
-                          onClick={toggleLogin}
-                          className="text-primary hover:text-primary-hover hover:font-bold flex items-center"
-                          aria-label={
-                            showLogin
-                              ? "Cerrar panel de inicio de sesión"
-                              : "Abrir panel de inicio de sesión"
-                          }
-                        >
-                          <FontAwesomeIcon
-                            icon={showLogin ? faTimes : faSignInAlt}
-                            className="mr-2"
-                          />
-                          <span>
-                            {showLogin
-                              ? t(translations.header.closeLogin)
-                              : t(translations.header.showLogin)}
-                          </span>
-                        </button>
-                      </div>
-                      <LoginForm showLogin={showLogin} />
                     </div>
                   )}
                 </>

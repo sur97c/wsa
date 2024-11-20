@@ -6,6 +6,7 @@ import { createContext, useContext, useRef, useState } from "react";
 type FlipContextType = {
     isFlipped: boolean;
     toggleFlip: (onAnimationEnd?: () => void) => void;
+    setIsFlipped: (value: boolean) => void;
     flipElementRef: React.RefObject<HTMLDivElement>;
 };
 
@@ -30,7 +31,7 @@ const FlipProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     };
 
     return (
-        <FlipContext.Provider value={{ isFlipped, toggleFlip, flipElementRef }}>
+        <FlipContext.Provider value={{ isFlipped, toggleFlip, setIsFlipped, flipElementRef }}>
             {children}
         </FlipContext.Provider>
     );

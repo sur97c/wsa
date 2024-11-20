@@ -2,6 +2,7 @@
 
 export const RoleKeys = [
     'home',
+    'dashboard',
     'quotes',
     'policies',
     'claims',
