@@ -14,7 +14,7 @@ import { IPolicy } from '@models/IPolicy'
 import { IClaim } from '@models/IClaim'
 import { IQuote } from '@models/IQuote'
 import { BaseEntity } from '@models/BaseEntity'
-import { TableRecord } from '../../../types/table'
+import { TableRecord } from '../../../components/advanced-table/table'
 
 type UserWithProfile = IUser & IProfile
 

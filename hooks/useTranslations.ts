@@ -4,9 +4,9 @@
 
 import { useParams } from 'next/navigation'
 import { useMemo } from 'react'
-import { Translation } from '../types/Translation'
-import { esTranslations } from '@dictionaries/es-translations'
-import { enTranslations } from '@dictionaries/en-translations'
+import { Translation } from '@translations/Translation'
+import { esTranslations } from '@translations/es-translations'
+import { enTranslations } from '@translations/en-translations'
 
 const translations = {
   es: esTranslations,

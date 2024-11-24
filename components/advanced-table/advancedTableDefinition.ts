@@ -9,47 +9,58 @@ export type CellValue =
   | boolean
   | Date
   | null
-  | React.ReactNode;
+  | React.ReactNode
 
 export type DataItem<
   T extends Record<string, CellValue> = Record<string, CellValue>,
   IdType = string | number
 > = {
-  id: IdType;
-} & T;
+  id: IdType
+} & T
 
 // =======================================
 // Column Definitions
 // =======================================
-export type Alignment = "left" | "center" | "right" | "justify";
+export type Alignment = "left" | "center" | "right" | "justify"
 
-export type ColumnType = "string" | "number" | "date" | "boolean" | "select";
+export type ColumnType = "string" | "number" | "date" | "boolean" | "select"
 
 export interface Column<T extends DataItem> {
-  key: keyof T;
-  type: ColumnType;
-  label?: string;
-  render?: (value: T[keyof T], item: T) => React.ReactNode;
-  align?: Alignment;
-  fetchOptions?: () => Promise<string[]>;
-  width?: string;
+  key: keyof T
+  type: ColumnType
+  label?: string
+  render?: (value: T[keyof T], item: T) => React.ReactNode
+  align?: Alignment
+  fetchOptions?: () => Promise<string[]>
+  width?: string
+  visible?: boolean // New property to control column visibility
+  defaultVisible?: boolean // New property to set default visibility
+  alwaysVisible?: boolean // New property to prevent hiding required columns
+}
+
+export interface ColumnVisibility {
+  key: string
+  label: string
+  visible: boolean
+  alwaysVisible?: boolean
+  defaultVisible?: boolean
 }
 
 // =======================================
 // Table and Row Options
 // =======================================
 export interface TableOption {
-  key: string;
-  label: string;
-  action: () => void;
-  icon?: React.ReactNode;
+  key: string
+  label: string
+  action: () => void
+  icon?: React.ReactNode
 }
 
 export interface RowOption<T extends DataItem> {
-  key: string;
-  label: string;
-  action: (item: T) => void;
-  icon?: React.ReactNode;
+  key: string
+  label: string
+  action: (item: T) => void
+  icon?: React.ReactNode
 }
 
 // =======================================
@@ -63,63 +74,70 @@ export type FilterOperator =
   | "lt"
   | "lte"
   | "between"
-  | "contains";
+  | "contains"
 
 export interface Filter<T extends DataItem> {
-  column: keyof T;
-  operator: FilterOperator | null;
-  value: string | number | boolean | [string | number, string | number] | null;
+  column: keyof T
+  operator: FilterOperator | null
+  value: string | number | boolean | [string | number, string | number] | null
 }
 
 export interface FilterOperatorOption {
-  value: FilterOperator;
-  label: string;
+  value: FilterOperator
+  label: string
 }
 
 // =======================================
 // Translation Interfaces
 // =======================================
 export type OperatorTranslations = {
-  [K in FilterOperator]: string;
-};
+  [K in FilterOperator]: string
+}
 
 export interface TableTranslations {
-  searchPlaceholder: string;
-  loading: string;
-  noResults: string;
-  addButton: string;
-  showingResults: string;
-  noMoreData: string;
-  loadingMore: string;
-  page: string;
-  actions: string;
-  addEditTitle: string;
-  save: string;
-  cancel: string;
+  searchPlaceholder: string
+  loading: string
+  noResults: string
+  addButton: string
+  showingResults: string
+  noMoreData: string
+  loadingMore: string
+  page: string
+  actions: string
+  addEditTitle: string
+  save: string
+  cancel: string
   filters: {
-    selectColumn: string;
-    selectOperator: string;
-    filterValue: string;
-    operators: OperatorTranslations;
-    minValue: string;
-    maxValue: string;
-    true: string;
-    false: string;
-    selectOption: string;
-    removeFilter: string;
-    dateFormat: string;
-  };
+    selectColumn: string
+    selectOperator: string
+    filterValue: string
+    operators: OperatorTranslations
+    minValue: string
+    maxValue: string
+    true: string
+    false: string
+    selectOption: string
+    removeFilter: string
+    dateFormat: string
+  }
   boolean: {
-    true: string;
-    false: string;
-  };
+    true: string
+    false: string
+  }
+  columnVisibility: {
+    title: string
+    selectAll: string
+    deselectAll: string
+    defaultSelection: string
+    buttonTitle: string
+  }
 }
 
 // =======================================
 // Component Props
 // =======================================
 export interface BaseTableProps<T extends DataItem> {
-  columns: Column<T>[];
+  columns: Column<T>[]
   fetchData: (
     page: number,
     itemsPerPage: number,
@@ -127,29 +145,31 @@ export interface BaseTableProps<T extends DataItem> {
     sortColumn: keyof T | null,
     sortDirection: "asc" | "desc",
     filters: Filter<T>[]
-  ) => Promise<T[]>;
-  itemsPerPage?: number;
-  tableOptions?: TableOption[];
-  rowOptions?: RowOption<T>[];
-  enableFilters?: boolean;
-  isEditing?: boolean;
-  editComponent?: React.ReactNode;
-  onCloseEdit?: () => void;
-  onAdd?: () => void;
-  searchPlaceholder?: string;
+  ) => Promise<T[]>
+  itemsPerPage?: number
+  tableOptions?: TableOption[]
+  rowOptions?: RowOption<T>[]
+  enableFilters?: boolean
+  isEditing?: boolean
+  editComponent?: React.ReactNode
+  onCloseEdit?: () => void
+  onAdd?: () => void
+  searchPlaceholder?: string
+  defaultVisibleColumns?: string[] // New prop for default visible columns
+  onColumnVisibilityChange?: (visibleColumns: string[]) => void // Optional callback when visibility changes
 }
 
 export interface TranslatedTableProps<T extends DataItem> {
   translations: {
-    columns: Column<T>[];
-    tableOptions: TableOption[];
-    rowOptions: RowOption<T>[];
-    tableTranslations: TableTranslations;
-  };
+    columns: Column<T>[]
+    tableOptions: TableOption[]
+    rowOptions: RowOption<T>[]
+    tableTranslations: TableTranslations
+  }
 }
 
 export type AdvancedTableProps<T extends DataItem> = BaseTableProps<T> &
-  Partial<TranslatedTableProps<T>>;
+  Partial<TranslatedTableProps<T>>
 
 // =======================================
 // Constants
@@ -158,7 +178,7 @@ export const TABLE_CONSTANTS = {
   VISIBLE_HEIGHT: 380,
   HEADER_HEIGHT: 48,
   ROW_HEIGHT: 60,
-} as const;
+} as const
 
 // =======================================
 // Helper Functions
@@ -203,5 +223,12 @@ export function getDefaultTranslations(searchPlaceholder: string | undefined): T
       true: "Yes",
       false: "No",
     },
+    columnVisibility: {
+      title: "Column Visibility",
+      selectAll: "Select All",
+      deselectAll: "Deselect All",
+      defaultSelection: "Default Selection",
+      buttonTitle: "Show/Hide Columns",
+    },
   }
-};
+}

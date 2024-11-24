@@ -34,6 +34,7 @@ import TableContainer from "@components/table-container/TableContainer";
 import { CSSTransition } from "react-transition-group";
 import styles from "./AdvancedTable.module.scss";
 import clsx from "clsx";
+import ColumnVisibilitySelector from "./ColumnVisibilitySelector";
 
 const { VISIBLE_HEIGHT, HEADER_HEIGHT, ROW_HEIGHT } = TABLE_CONSTANTS;
 
@@ -49,6 +50,8 @@ function AdvancedTable<T extends DataItem>({
   onAdd,
   searchPlaceholder,
   translations,
+  defaultVisibleColumns,
+  onColumnVisibilityChange,
 }: AdvancedTableProps<T>) {
   // ==============================================
   // Initialize Translations
@@ -68,7 +71,6 @@ function AdvancedTable<T extends DataItem>({
   // ==============================================
   // State Management
   // ==============================================
-  // Table Data State
   const [data, setData] = useState<T[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -96,6 +98,21 @@ function AdvancedTable<T extends DataItem>({
   const [selectedOperator, setSelectedOperator] =
     useState<FilterOperator | null>(null);
   const [selectOptions, setSelectOptions] = useState<string[]>([]);
+
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
+    const initialColumns = columns
+      .filter((col) => col.defaultVisible !== false || col.alwaysVisible)
+      .map((col) => String(col.key));
+    return defaultVisibleColumns || initialColumns;
+  });
+
+  const visibleTranslatedColumns = useMemo(
+    () =>
+      translatedColumns.filter(
+        (col) => visibleColumns.includes(String(col.key)) || col.alwaysVisible
+      ),
+    [translatedColumns, visibleColumns]
+  );
 
   // ==============================================
   // Refs
@@ -662,7 +679,7 @@ function AdvancedTable<T extends DataItem>({
           </div>
         </div>
         <div className={styles.cardContent}>
-          {translatedColumns.map((column) => {
+          {visibleTranslatedColumns.map((column) => {
             if (column.key === "id") return null;
             return (
               <div key={String(column.key)} className={styles.cardField}>
@@ -680,7 +697,7 @@ function AdvancedTable<T extends DataItem>({
       selectedRows,
       handleRowSelect,
       showRowMenu,
-      translatedColumns,
+      visibleTranslatedColumns,
       renderCellContent,
       RowActions,
     ]
@@ -713,7 +730,7 @@ function AdvancedTable<T extends DataItem>({
                   onChange={() => handleRowSelect(item.id)}
                 />
               </div>
-              {translatedColumns.map((column) => (
+              {visibleTranslatedColumns.map((column) => (
                 <div
                   key={String(column.key)}
                   className={`py-3 px-2 ${getAlignmentClass(column.align)}`}
@@ -744,7 +761,7 @@ function AdvancedTable<T extends DataItem>({
       data,
       selectedRows,
       handleRowSelect,
-      translatedColumns,
+      visibleTranslatedColumns,
       showRowMenu,
       MobileCard,
       renderCellContent,
@@ -770,7 +787,7 @@ function AdvancedTable<T extends DataItem>({
             onChange={handleSelectAll}
           />
         </div>
-        {translatedColumns.map((column) => (
+        {visibleTranslatedColumns.map((column) => (
           <div
             key={String(column.key)}
             className={`py-3 px-2 cursor-pointer flex items-center justify-center text-center`}
@@ -796,7 +813,7 @@ function AdvancedTable<T extends DataItem>({
     [
       allSelected,
       handleSelectAll,
-      translatedColumns,
+      visibleTranslatedColumns,
       handleSort,
       sortColumn,
       sortDirection,
@@ -837,7 +854,14 @@ function AdvancedTable<T extends DataItem>({
         )}
       </>
     );
-  }, [addFilter, filterValue, renderFilterInput, selectedColumn, selectedOperator, tableTranslations.filters]);
+  }, [
+    addFilter,
+    filterValue,
+    renderFilterInput,
+    selectedColumn,
+    selectedOperator,
+    tableTranslations.filters,
+  ]);
 
   const renderTableRowEdit = useCallback(() => {
     if (!isEditing) return null;
@@ -927,10 +951,13 @@ function AdvancedTable<T extends DataItem>({
   );
 
   const renderHeader = useCallback(() => {
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
     return (
       <div ref={headerRef} className={styles.header}>
-        <div className="flex items-center gap-2">
-          <div className="flex-grow relative">
+        {/* Búsqueda - Siempre visible arriba */}
+        <div className="md:flex md:items-center md:gap-2">
+          <div className="w-full md:flex-grow relative">
             <FontAwesomeIcon
               icon={faSearch}
               className="absolute text-gray-400 left-3 top-1/2 transform -translate-y-1/2"
@@ -943,42 +970,105 @@ function AdvancedTable<T extends DataItem>({
               value={searchTerm}
             />
           </div>
-
-          <div className="flex items-center gap-1">
-            {enableFilters && (
-              <button
-                className={`w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 ${
+          {/* Contenedor de controles - Reorganizado para móvil */}
+          <div
+            className={`
+        mt-2 
+        ${isMobile ? "flex flex-wrap gap-2" : "flex justify-end"}
+      `}
+          >
+            {/* Grupo de botones principales */}
+            <div
+              className={`
+          flex items-center gap-1
+          ${isMobile ? "w-full flex-wrap justify-start" : ""}
+        `}
+            >
+              {/* Botón de filtros */}
+              {enableFilters && (
+                <button
+                  className={`
+                flex items-center justify-center px-3 py-2 rounded-md
+                ${
                   showMobileFilters
                     ? "bg-gray-100 text-blue-600"
-                    : "text-gray-600"
-                }`}
-                onClick={() => setShowMobileFilters(!showMobileFilters)}
-              >
-                <FontAwesomeIcon icon={faFilter} />
-              </button>
-            )}
+                    : "text-gray-600 hover:bg-gray-50"
+                }
+                ${isMobile ? "flex-1 min-w-[120px]" : "w-10 h-10 rounded-full"}
+              `}
+                  onClick={() => setShowMobileFilters(!showMobileFilters)}
+                >
+                  <FontAwesomeIcon
+                    icon={faFilter}
+                    className={isMobile ? "mr-2" : ""}
+                  />
+                  {isMobile && <span>Filtros</span>}
+                </button>
+              )}
 
-            {onAdd && (
+              {/* Selector de columnas */}
+              <div
+                className={`
+            ${isMobile ? "flex-1 min-w-[120px]" : ""}
+          `}
+              >
+                <ColumnVisibilitySelector
+                  columns={translatedColumns}
+                  defaultVisibleColumns={defaultVisibleColumns}
+                  onChange={(newVisibleColumns) => {
+                    setVisibleColumns(newVisibleColumns);
+                    onColumnVisibilityChange?.(newVisibleColumns);
+                  }}
+                  translations={tableTranslations}
+                  isMobile={isMobile}
+                />
+              </div>
+
+              {/* Botón de agregar */}
+              {onAdd && (
+                <button
+                  className={`
+                flex items-center justify-center bg-blue-600 text-white hover:bg-blue-700
+                ${
+                  isMobile
+                    ? "flex-1 min-w-[120px] px-3 py-2 rounded-md"
+                    : "w-10 h-10 rounded-full"
+                }
+              `}
+                  onClick={onAdd}
+                >
+                  <FontAwesomeIcon
+                    icon={faPlus}
+                    className={isMobile ? "mr-2" : ""}
+                  />
+                  {isMobile && <span>Agregar</span>}
+                </button>
+              )}
+
+              {/* Menú de opciones */}
               <button
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700"
-                onClick={onAdd}
+                className={`
+              flex items-center justify-center hover:bg-gray-50
+              ${
+                isMobile
+                  ? "flex-1 min-w-[120px] px-3 py-2 rounded-md"
+                  : "w-10 h-10 rounded-full"
+              }
+              ${showTableMenu ? "bg-gray-100 text-blue-600" : "text-gray-600"}
+            `}
+                onClick={() => setShowTableMenu(!showTableMenu)}
               >
-                <FontAwesomeIcon icon={faPlus} />
+                <FontAwesomeIcon
+                  icon={faEllipsisVertical}
+                  className={isMobile ? "mr-2" : ""}
+                />
+                {isMobile && <span>Opciones</span>}
               </button>
-            )}
-
-            <button
-              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100"
-              onClick={() => setShowTableMenu(!showTableMenu)}
-            >
-              <FontAwesomeIcon
-                icon={faEllipsisVertical}
-                className="text-gray-600"
-              />
-            </button>
+            </div>
           </div>
         </div>
 
+        {/* Sección de filtros */}
         {enableFilters && (
           <div className={styles.filterSection}>
             <div
@@ -990,61 +1080,62 @@ function AdvancedTable<T extends DataItem>({
                 }
               )}
             >
-              {renderFilterSection()}
+              <div
+                className={`
+              flex 
+              ${isMobile ? "flex-col gap-2" : "flex-wrap items-center gap-2"}
+            `}
+              >
+                {renderFilterSection()}
+              </div>
             </div>
           </div>
         )}
 
+        {/* Filtros activos */}
         {enableFilters && filters.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2 px-2">
-            {filters.map((filter, index) => {
-              const columnLabel = translatedColumns.find(
-                (col) => col.key === filter.column
-              )?.label;
-              const operatorLabel =
-                tableTranslations.filters.operators[filter.operator || "eq"];
-              const formattedValue = formatFilterValue(filter);
-
-              return (
-                <div
-                  key={index}
-                  className={`bg-gray-100 text-primary text-sm rounded-full px-3 py-1 text-xs flex items-center`}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {filters.map((filter, index) => (
+              <div
+                key={index}
+                className="flex items-center bg-gray-100 text-primary text-sm rounded-full px-3 py-1"
+              >
+                <span className="mr-2">
+                  {
+                    translatedColumns.find((col) => col.key === filter.column)
+                      ?.label
+                  }
+                  :{formatFilterValue(filter)}
+                </span>
+                <button
+                  onClick={() => removeFilter(index)}
+                  className="text-gray-500 hover:text-gray-700"
                 >
-                  <span className="flex items-center gap-1 text-center">
-                    <span className="font-medium">{columnLabel}</span>
-                    <span className="text-gray-500 ml-2 mr-2">
-                      {operatorLabel}
-                    </span>
-                    <span>{formattedValue}</span>
-                  </span>
-                  <button
-                    className="ml-2 text-gray-500 hover:text-gray-700"
-                    onClick={() => removeFilter(index)}
-                    title={tableTranslations.filters.removeFilter}
-                  >
-                    <FontAwesomeIcon icon={faTimes} />
-                  </button>
-                </div>
-              );
-            })}
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              </div>
+            ))}
           </div>
         )}
 
+        {/* Menú de opciones de tabla */}
         {showTableMenu && renderTableMenu()}
       </div>
     );
   }, [
-    tableTranslations,
     searchTerm,
     showMobileFilters,
     enableFilters,
-    filters,
     translatedColumns,
+    defaultVisibleColumns,
+    onColumnVisibilityChange,
+    tableTranslations,
+    onAdd,
     showTableMenu,
     handleSearch,
-    onAdd,
-    formatFilterValue,
+    filters,
     removeFilter,
+    formatFilterValue,
     renderFilterSection,
     renderTableMenu,
   ]);

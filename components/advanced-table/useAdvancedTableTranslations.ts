@@ -1,6 +1,6 @@
 // hooks/useAdvancedTableTranslations.ts
 
-import { useTranslations } from '@hooks/useTranslations';
+import { useTranslations } from '@hooks/useTranslations'
 import {
   Column,
   TableOption,
@@ -8,12 +8,12 @@ import {
   DataItem,
   TableTranslations,
   CellValue
-} from '@components/advanced-table/advancedTableDefinition';
-import { ModuleWithTableKey, TableTranslationBase } from '../../types/Translation';
+} from '@components/advanced-table/advancedTableDefinition'
+import { ModuleWithTableKey, TableTranslationBase } from '../../translations/Translation'
 
 interface UseAdvancedTableTranslationsProps {
-  module: ModuleWithTableKey;
-  entity: string;
+  module: ModuleWithTableKey
+  entity: string
 }
 
 export function useAdvancedTableTranslations<
@@ -22,19 +22,19 @@ export function useAdvancedTableTranslations<
   module,
   entity
 }: UseAdvancedTableTranslationsProps) {
-  const { t, translations } = useTranslations();
-  type EntityType = DataItem<T, string>;
+  const { t, translations } = useTranslations()
+  type EntityType = DataItem<T, string>
 
   const getEntityTranslations = (): TableTranslationBase | null => {
-    const moduleTranslations = translations[module]?.advancedTable;
+    const moduleTranslations = translations[module]?.advancedTable
     if (!moduleTranslations || !(entity in moduleTranslations)) {
-      console.warn(`No translations found for entity "${entity}" in module "${module}"`);
-      return null;
+      console.warn(`No translations found for entity "${entity}" in module "${module}"`)
+      return null
     }
-    return moduleTranslations[entity] as TableTranslationBase;
-  };
+    return moduleTranslations[entity] as TableTranslationBase
+  }
 
-  const entityTranslations = getEntityTranslations();
+  const entityTranslations = getEntityTranslations()
 
   const getTableTranslations = (): TableTranslations => ({
     searchPlaceholder: t('advancedTable.searchPlaceholder'),
@@ -74,8 +74,15 @@ export function useAdvancedTableTranslations<
     boolean: {
       true: t('advancedTable.boolean.true'),
       false: t('advancedTable.boolean.false')
+    },
+    columnVisibility: {
+      title: t('advancedTable.columnVisibility.title'),
+      selectAll: t('advancedTable.columnVisibility.selectAll'),
+      deselectAll: t('advancedTable.columnVisibility.deselectAll'),
+      defaultSelection: t('advancedTable.columnVisibility.defaultSelection'),
+      buttonTitle: t('advancedTable.columnVisibility.buttonTitle')
     }
-  });
+  })
 
   const translateColumns = (
     columns: Column<EntityType>[]
@@ -85,8 +92,8 @@ export function useAdvancedTableTranslations<
       label: entityTranslations?.columns[String(column.key)] ||
         t(`${module}.advancedTable.${entity}.columns.${String(column.key)}`) ||
         column.label
-    }));
-  };
+    }))
+  }
 
   const translateTableOptions = (options: TableOption[]): TableOption[] => {
     return options.map(option => ({
@@ -94,8 +101,8 @@ export function useAdvancedTableTranslations<
       label: entityTranslations?.tableOptions?.[option.key] ||
         t(`${module}.advancedTable.${entity}.tableOptions.${option.key}`) ||
         option.label
-    }));
-  };
+    }))
+  }
 
   const translateRowOptions = (
     options: RowOption<EntityType>[]
@@ -105,13 +112,13 @@ export function useAdvancedTableTranslations<
       label: entityTranslations?.rowOptions?.[option.key] ||
         t(`${module}.advancedTable.${entity}.rowOptions.${option.key}`) ||
         option.label
-    }));
-  };
+    }))
+  }
 
   return {
     tableTranslations: getTableTranslations(),
     translateColumns,
     translateTableOptions,
     translateRowOptions
-  };
+  }
 }

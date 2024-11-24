@@ -19,7 +19,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { setEntityMockConfig } from "@lib/redux/slices/mockConfigSlice";
 import { createGenericFirestoreSlice } from "@lib/redux/slices/genericFirestoreSlice";
-import type { TableRecord } from "../../../../../types/table";
+import type { TableRecord } from "../../../../../components/advanced-table/table";
 import TruncatedText from "@components/truncated-text/TruncatedText";
 import EditUserForm from "./EditUserForm";
 
@@ -63,6 +63,7 @@ const UserProfileTable: React.FC = () => {
       type: "string",
       width: "5%",
       align: "center",
+      alwaysVisible: true,
       render: (value) => (
         <TruncatedText value={value} maxLength={5} tooltipPosition="bottom" />
       ),
@@ -73,6 +74,8 @@ const UserProfileTable: React.FC = () => {
       type: "string",
       width: "20%",
       align: "center",
+      defaultVisible: true,
+      alwaysVisible: true,
     },
     {
       key: "emailVerified",
@@ -80,6 +83,7 @@ const UserProfileTable: React.FC = () => {
       type: "boolean",
       width: "10%",
       align: "center",
+      defaultVisible: true,
       render: (value) => (
         <div
           className={`inline-flex items-center px-2 py-0.5 rounded-full ${
@@ -100,10 +104,11 @@ const UserProfileTable: React.FC = () => {
     },
     {
       key: "displayName",
-      label: "Nombre Completo",
+      label: "Mostrar como",
       type: "string",
       width: "15%",
       align: "center",
+      defaultVisible: true,
     },
     {
       key: "name",
@@ -111,6 +116,7 @@ const UserProfileTable: React.FC = () => {
       type: "string",
       width: "12%",
       align: "center",
+      defaultVisible: true,
     },
     {
       key: "lastName",
@@ -118,6 +124,7 @@ const UserProfileTable: React.FC = () => {
       type: "string",
       width: "12%",
       align: "center",
+      defaultVisible: true,
     },
     {
       key: "createdAt",
@@ -125,6 +132,7 @@ const UserProfileTable: React.FC = () => {
       type: "date",
       width: "13%",
       align: "center",
+      defaultVisible: false,
       render: (value) =>
         value ? new Date(value as string).toLocaleString() : "-",
     },
@@ -134,6 +142,7 @@ const UserProfileTable: React.FC = () => {
       type: "date",
       width: "13%",
       align: "center",
+      defaultVisible: false,
       render: (value) =>
         value ? new Date(value as string).toLocaleString() : "-",
     },
@@ -268,6 +277,13 @@ const UserProfileTable: React.FC = () => {
         translations={translations}
         tableOptions={tableOptions}
         rowOptions={rowOptions}
+        defaultVisibleColumns={columns
+          .filter(col => col.defaultVisible !== false)
+          .map(col => String(col.key))}
+        onColumnVisibilityChange={(visibleColumns) => {
+          console.log('Columnas visibles:', visibleColumns);
+          // Aquí podrías guardar la preferencia del usuario si lo deseas
+        }}
       />
     </div>
   );

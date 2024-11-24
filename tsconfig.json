@@ -21,7 +21,8 @@
     "paths": {
       "@actions/*": ["./actions/*"],
       "@app/*": ["./app/*"],
-      "@dictionaries/*": ["./dictionaries/*"],
+      "@contexts/*": ["./contexts/*"],
+      "@translations/*": ["./translations/*"],
       "@hooks/*": ["./hooks/*"],
       "@components/*": ["./components/*"],
       "@lib/*": ["./lib/*"],

@@ -1,4 +1,5 @@
-// types/table.ts
+// components/advanced-table/table.ts
+
 import { CellValue, DataItem } from '@components/advanced-table/advancedTableDefinition'
 import { BaseEntity } from '@models/BaseEntity'
 

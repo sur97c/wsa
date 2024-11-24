@@ -15,11 +15,14 @@
   }
 
   // Estilos para el encabezado de la tabla
-  thead, .tableHeader {
+  thead,
+  .tableHeader {
     :global(.theme-dark) & {
       background-color: var(--table-header-bg, #2d2d3d);
-      
-      th, td, div {
+
+      th,
+      td,
+      div {
         @apply text-gray-300;
         border-color: var(--table-border, #383850);
         @apply border-opacity-50;
@@ -41,62 +44,113 @@
   }
 
   // Header
+  // .header {
+  //   @apply bg-white border-b p-4 flex-shrink-0;
+  //   position: sticky;
+  //   top: 0;
+  //   z-index: 10;
+
+  //   :global(.theme-dark) & {
+  //     background-color: var(--table-header-bg, #2d2d3d);
+  //     border-color: var(--table-border, #383850);
+
+  //     input, select, button {
+  //       @apply bg-gray-800 border-gray-700 text-gray-200;
+
+  //       &::placeholder {
+  //         @apply text-gray-500;
+  //       }
+
+  //       &:hover {
+  //         background-color: var(--nav-background, #2d2d3d);
+  //       }
+  //     }
+  //   }
+
+  //   .searchSection {
+  //     @apply flex items-center gap-4;
+
+  //     @media (max-width: 768px) {
+  //       @apply flex-col;
+  //       gap: 1rem;
+
+  //       .filterControls {
+  //         @apply w-full flex-wrap gap-2;
+
+  //         select,
+  //         input {
+  //           @apply w-full;
+  //         }
+  //       }
+
+  //       .actionButtons {
+  //         @apply w-full flex justify-between;
+  //       }
+  //     }
+  //   }
+
+  //   .filterSection {
+  //     @apply flex flex-col gap-2;
+
+  //     .activeFilters {
+  //       @apply flex flex-wrap gap-2 mt-2;
+  //       min-height: fit-content;
+  //     }
+  //   }
+
+  //   &.editing {
+  //     @apply pointer-events-none;
+  //   }
+  // }
+
   .header {
-    @apply bg-white border-b p-4 flex-shrink-0;
+    padding: 1rem;
+    background-color: white;
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 10;
 
-    :global(.theme-dark) & {
-      background-color: var(--table-header-bg, #2d2d3d);
-      border-color: var(--table-border, #383850);
-      
-      input, select, button {
-        @apply bg-gray-800 border-gray-700 text-gray-200;
-        
-        &::placeholder {
-          @apply text-gray-500;
-        }
+    @media (max-width: 768px) {
+      .controlsContainer {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
 
-        &:hover {
-          background-color: var(--nav-background, #2d2d3d);
-        }
+      .searchContainer {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+
+      .buttonsContainer {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.5rem;
+      }
+
+      .filterSection {
+        margin-top: 0.5rem;
       }
     }
+  }
 
-    .searchSection {
-      @apply flex items-center gap-4;
-
+  .filterSection {
+    .filterControls {
       @media (max-width: 768px) {
-        @apply flex-col;
-        gap: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
 
-        .filterControls {
-          @apply w-full flex-wrap gap-2;
-
-          select,
-          input {
-            @apply w-full;
-          }
+        select,
+        input {
+          width: 100%;
         }
 
-        .actionButtons {
-          @apply w-full flex justify-between;
+        button {
+          width: 100%;
+          margin-top: 0.5rem;
         }
       }
-    }
-
-    .filterSection {
-      @apply flex flex-col gap-2;
-
-      .activeFilters {
-        @apply flex flex-wrap gap-2 mt-2;
-        min-height: fit-content;
-      }
-    }
-
-    &.editing {
-      @apply pointer-events-none;
     }
   }
 
@@ -110,13 +164,15 @@
       background-color: var(--table-row-bg, #1e1e2d);
 
       // Estilos específicos para las filas
-      > div > div {  // Contenedor de la fila
+      > div > div {
+        // Contenedor de la fila
         cursor: pointer;
         transition: all 0.2s ease;
 
         &:hover {
           background-color: var(--nav-background, #2d2d3d) !important;
-          * {  // Todo el contenido dentro de la fila
+          * {
+            // Todo el contenido dentro de la fila
             @apply text-gray-700;
           }
         }
@@ -132,16 +188,17 @@
         // Asegurar visibilidad de controles
         input[type="checkbox"] {
           @apply border-gray-600 bg-gray-700;
-          
+
           &:checked {
             @apply bg-blue-600 border-blue-600;
           }
         }
 
         // Mantener visible el menú de opciones
-        button, .menuButton {
+        button,
+        .menuButton {
           @apply text-gray-400;
-          
+
           &:hover {
             @apply text-gray-700;
           }
@@ -149,7 +206,9 @@
       }
 
       // Estilos para celdas
-      td, th, div[role="cell"] {
+      td,
+      th,
+      div[role="cell"] {
         border-color: var(--table-border, #383850);
         @apply border-opacity-50;
       }
@@ -267,80 +326,80 @@
   }
 }
 
-// Cards para vista móvil
-.mobileCard {
-  @apply bg-white rounded-lg shadow-sm p-4;
-  border: 1px solid #e5e7eb;
-  transition: all 0.2s ease;
-  cursor: pointer;
+// // Cards para vista móvil
+// .mobileCard {
+//   @apply bg-white rounded-lg shadow-sm p-4;
+//   border: 1px solid #e5e7eb;
+//   transition: all 0.2s ease;
+//   cursor: pointer;
 
-  :global(.theme-dark) & {
-    background-color: var(--table-row-bg, #1e1e2d);
-    border-color: var(--table-border, #383850);
+//   :global(.theme-dark) & {
+//     background-color: var(--table-row-bg, #1e1e2d);
+//     border-color: var(--table-border, #383850);
 
-    &:hover {
-      background-color: var(--nav-background, #2d2d3d);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
-        0 2px 4px -1px rgba(0, 0, 0, 0.2);
+//     &:hover {
+//       background-color: var(--nav-background, #2d2d3d);
+//       transform: translateY(-1px);
+//       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+//         0 2px 4px -1px rgba(0, 0, 0, 0.2);
 
-      .cardField {
-        .fieldLabel {
-          @apply text-gray-300;
-        }
-        .fieldValue {
-          @apply text-white;
-        }
-      }
-    }
-  }
+//       .cardField {
+//         .fieldLabel {
+//           @apply text-gray-300;
+//         }
+//         .fieldValue {
+//           @apply text-white;
+//         }
+//       }
+//     }
+//   }
 
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
+//   &:hover {
+//     transform: translateY(-1px);
+//     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+//       0 2px 4px -1px rgba(0, 0, 0, 0.06);
+//   }
 
-  .cardHeader {
-    @apply flex items-center justify-between mb-4;
+//   .cardHeader {
+//     @apply flex items-center justify-between mb-4;
 
-    .checkboxContainer {
-      @apply flex items-center gap-2;
+//     .checkboxContainer {
+//       @apply flex items-center gap-2;
 
-      :global(.theme-dark) & {
-        @apply text-gray-300;
-      }
-    }
+//       :global(.theme-dark) & {
+//         @apply text-gray-300;
+//       }
+//     }
 
-    .actionsContainer {
-      @apply flex items-center;
-    }
-  }
+//     .actionsContainer {
+//       @apply flex items-center;
+//     }
+//   }
 
-  .cardContent {
-    @apply space-y-3;
+//   .cardContent {
+//     @apply space-y-3;
 
-    .cardField {
-      @apply flex flex-col;
+//     .cardField {
+//       @apply flex flex-col;
 
-      .fieldLabel {
-        @apply text-xs font-medium text-gray-500;
+//       .fieldLabel {
+//         @apply text-xs font-medium text-gray-500;
 
-        :global(.theme-dark) & {
-          @apply text-gray-400;
-        }
-      }
+//         :global(.theme-dark) & {
+//           @apply text-gray-400;
+//         }
+//       }
 
-      .fieldValue {
-        @apply text-sm text-gray-900 break-words;
+//       .fieldValue {
+//         @apply text-sm text-gray-900 break-words;
 
-        :global(.theme-dark) & {
-          @apply text-gray-300;
-        }
-      }
-    }
-  }
-}
+//         :global(.theme-dark) & {
+//           @apply text-gray-300;
+//         }
+//       }
+//     }
+//   }
+// }
 
 // Panel de edición
 .editContainer {
@@ -451,7 +510,7 @@
 
     :global(.theme-dark) & {
       background-color: var(--nav-background, #2d2d3d);
-      
+
       &:hover {
         background-color: var(--nav-active, #4a78d3);
       }
@@ -463,27 +522,106 @@
   }
 }
 
-// Ajustes específicos para vista móvil
-@media (max-width: 768px) {
-  .overlay {
-    @apply fixed;
+// // Ajustes específicos para vista móvil
+// @media (max-width: 768px) {
+//   .overlay {
+//     @apply fixed;
+//   }
+
+//   .mobileScrollContainer {
+//     &::-webkit-scrollbar {
+//       width: 4px;
+//     }
+
+//     &::-webkit-scrollbar-track {
+//       @apply bg-transparent;
+//     }
+
+//     &::-webkit-scrollbar-thumb {
+//       @apply bg-gray-300 rounded-full;
+
+//       :global(.theme-dark) & {
+//         @apply bg-gray-600;
+//       }
+//     }
+//   }
+// }
+
+.mobileCard {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
   }
+}
 
-  .mobileScrollContainer {
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
 
-    &::-webkit-scrollbar-track {
-      @apply bg-transparent;
-    }
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 
-    &::-webkit-scrollbar-thumb {
-      @apply bg-gray-300 rounded-full;
-
-      :global(.theme-dark) & {
-        @apply bg-gray-600;
-      }
-    }
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
   }
+}
+
+.actionsContainer {
+  display: flex;
+  align-items: center;
+}
+
+.cardContent {
+  padding: 0.75rem 1rem;
+}
+
+.cardField {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.fieldLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.fieldValue {
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.mobileScrollContainer {
+  height: calc(100vh - var(--header-height) - var(--edit-height, 0px));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  // padding: 1rem;
+  background-color: #f3f4f6;
+}
+
+.mobileContainer {
+  max-width: 640px;
+  margin: 0 auto;
 }
