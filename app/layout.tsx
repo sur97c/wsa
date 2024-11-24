@@ -1,4 +1,5 @@
 // app/layout.tsx
+
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
 import { config } from "@fortawesome/fontawesome-svg-core";
@@ -29,9 +30,7 @@ export default function RootLayout({
       <body>
         <ClientProviders>
           <NavigationLoaderProvider>
-            <main className="container mx-auto">
-              {children}
-            </main>
+            <main>{children}</main>
             <Toaster />
           </NavigationLoaderProvider>
         </ClientProviders>

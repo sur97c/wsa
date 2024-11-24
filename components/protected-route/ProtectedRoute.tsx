@@ -17,41 +17,61 @@ import SkeletonManagementPage from "@components/skeletons/SkeletonManagementPage
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  publicContent?: ReactNode; // Contenido para usuarios no autenticados
+  publicContent?: ReactNode;
   allowedRoles?: RoleKey[];
   skeletonType?: RoleKey;
   transitionType?: TransitionType;
-  mode?: "redirect" | "dual"; // Nuevo modo para manejar contenido dual
+  mode?: "redirect" | "dual";
   redirectPath?: string;
 }
 
-interface LoadingSpinnerProps {
-  isLoading: boolean;
-}
-
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ isLoading }) => {
+const LoadingSpinner: React.FC = () => {
   return (
-    <AnimatePresence>
-      {isLoading && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="flex items-center justify-center w-full h-screen fixed top-0 left-0 bg-white bg-opacity-80 z-50"
+    >
+      <div className="flex flex-col items-center gap-4">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="flex items-center justify-center w-full h-screen fixed top-0 left-0 bg-white bg-opacity-80 z-50"
-        >
-          <div className="flex flex-col items-center gap-4">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
-            />
-            <span className="text-primary font-medium">Loading...</span>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+        />
+        <span className="text-primary font-medium">Loading...</span>
+      </div>
+    </motion.div>
   );
 };
+
+// interface LoadingSpinnerProps {
+//   isLoading: boolean;
+// }
+
+// const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ isLoading }) => {
+//   return (
+//     <AnimatePresence>
+//       {isLoading && (
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           animate={{ opacity: 1 }}
+//           exit={{ opacity: 0 }}
+//           className="flex items-center justify-center w-full h-screen fixed top-0 left-0 bg-white bg-opacity-80 z-50"
+//         >
+//           <div className="flex flex-col items-center gap-4">
+//             <motion.div
+//               animate={{ rotate: 360 }}
+//               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+//               className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+//             />
+//             <span className="text-primary font-medium">Loading...</span>
+//           </div>
+//         </motion.div>
+//       )}
+//     </AnimatePresence>
+//   );
+// };
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
@@ -123,23 +143,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return children;
   };
 
-  const loadingSpinner = () => {
-    setShowSkeleton(false);
-    return (
-      <LoadingSpinner isLoading={true} />
-    );
-  };
+  // const loadingSpinner = () => {
+  //   setShowSkeleton(false);
+  //   return (
+  //     <LoadingSpinner isLoading={true} />
+  //   );
+  // };
 
   const skeletonComponents: Record<RoleKey, React.ComponentType> = {
-    dashboard: loadingSpinner,
+    dashboard: LoadingSpinner,
     management: SkeletonManagementPage,
-    quotes: loadingSpinner,
-    policies: loadingSpinner,
-    home: loadingSpinner,
-    claims: loadingSpinner,
-    payments: loadingSpinner,
-    clients: loadingSpinner,
-    reports: loadingSpinner,
+    quotes: LoadingSpinner,
+    policies: LoadingSpinner,
+    home: LoadingSpinner,
+    claims: LoadingSpinner,
+    payments: LoadingSpinner,
+    clients: LoadingSpinner,
+    reports: LoadingSpinner,
   };
 
   return (

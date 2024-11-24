@@ -1,3 +1,5 @@
+// components/login/LoginForm.tsx
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -29,9 +31,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
     if (auth?.isAuthenticated) {
       dispatch(setShowLogin(false));
       if (onClose) onClose();
-      safeNavigate("/dashboard");
+      if (auth.customClaims?.roles?.includes("dashboard"))
+        safeNavigate("/dashboard");
+      else {
+        const role = auth.customClaims?.roles[0]
+          ? auth.customClaims?.roles[0]
+          : "";
+        safeNavigate(`/${role}`);
+      }
     }
-  }, [auth?.isAuthenticated, dispatch, onClose, safeNavigate]);
+  }, [auth?.isAuthenticated, dispatch, onClose, safeNavigate, auth?.customClaims?.roles]);
 
   const handleLoginUser = async (e: React.FormEvent) => {
     e.preventDefault();

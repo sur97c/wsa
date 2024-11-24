@@ -1,5 +1,10 @@
 // app/[lang]/global-error.tsx
+
 "use client";
+
+import ClientErrorPage from "@components/error/ClientErrorPage";
+import { esTranslations } from "@translations/es-translations";
+import { enTranslations } from "@translations/en-translations";
 
 export default function GlobalError({
   error,
@@ -8,24 +13,19 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  console.error(error);
+  const lang = window.location.pathname.split("/")[1] || "es";
+  const translations = lang === "es" ? esTranslations : enTranslations;
+  console.error(error, reset)
 
   return (
     <html>
       <body>
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-800">
-              Something went wrong!
-            </h2>
-            <button
-              onClick={() => reset()}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Try again
-            </button>
-          </div>
-        </div>
+        <ClientErrorPage
+          title={translations.errors.systemError.title}
+          message={translations.errors.systemError.message}
+          showBackButton={false}
+          showHomeButton={true}
+        />
       </body>
     </html>
   );

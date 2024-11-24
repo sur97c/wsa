@@ -10,5 +10,11 @@
         "spanish",
         "tailwindcss",
         "unoptimized"
-    ]
+    ],
+    "javascript.format.semicolons": "remove",
+    "typescript.experimental.updateImportsOnPaste": true,
+    "typescript.format.semicolons": "remove",
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2
 }

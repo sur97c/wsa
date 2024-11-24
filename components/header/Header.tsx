@@ -42,7 +42,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="text-white">
+      <header className="container mx-auto text-white">
         <nav className="flex justify-between ml-4 mr-4">
           <Image
             src="/images/WSA-logo.png"
