@@ -14,7 +14,7 @@ export default function ProtectedLayout({
       <FlipProvider>
         <Header />
         <main className="container mx-auto">
-          <div className="m-4">{children}</div>
+          <div className="m-8">{children}</div>
         </main>
       </FlipProvider>
     </AuthStateListener>
