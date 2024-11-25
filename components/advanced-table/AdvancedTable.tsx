@@ -89,6 +89,8 @@ function AdvancedTable<T extends DataItem>({
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [height, setHeight] = useState(0);
 
+  // const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
   // Filter State
   const [filters, setFilters] = useState<Filter<T>[]>([]);
   const [selectedColumn, setSelectedColumn] = useState<Column<T> | null>(null);
@@ -705,8 +707,6 @@ function AdvancedTable<T extends DataItem>({
 
   const Row = useCallback(
     ({ index, style }: { index: number; style: React.CSSProperties }) => {
-      const isMobile =
-        typeof window !== "undefined" && window.innerWidth <= 768;
       const item = data[index];
 
       if (!item) return null;
@@ -717,47 +717,41 @@ function AdvancedTable<T extends DataItem>({
 
       return (
         <div style={style}>
-          {isMobile ? (
-            <div className="block">
-              <MobileCard item={item} />
+          {/* Vista Móvil */}
+          <div className="block md:hidden">
+            <MobileCard item={item} />
+          </div>
+          {/* Vista Desktop */}
+          <div className="hidden md:flex md:items-center bg-white border-b border-gray-200 hover:bg-gray-50">
+            <div className="py-3 text-center w-12 flex-shrink-0">
+              <input
+                type="checkbox"
+                checked={selectedRows.includes(item.id)}
+                onChange={() => handleRowSelect(item.id)}
+              />
             </div>
-          ) : (
-            <div className="flex items-center bg-white border-b border-gray-200 hover:bg-gray-50">
-              <div className="py-3 text-center w-12 flex-shrink-0">
-                <input
-                  type="checkbox"
-                  checked={selectedRows.includes(item.id)}
-                  onChange={() => handleRowSelect(item.id)}
-                />
+            {visibleTranslatedColumns.map((column) => (
+              <div
+                key={String(column.key)}
+                className={`py-3 px-2 ${getAlignmentClass(column.align)}`}
+                style={{ width: column.width || "auto" }}
+              >
+                {renderCellContent(column, item)}
               </div>
-              {visibleTranslatedColumns.map((column) => (
-                <div
-                  key={String(column.key)}
-                  className={`py-3 px-2 ${getAlignmentClass(column.align)}`}
-                  style={{ width: column.width || "auto" }}
-                >
-                  {renderCellContent(column, item)}
-                </div>
-              ))}
-              <div className="py-3 text-center w-12 flex-shrink-0">
-                <RowActions
-                  item={item}
-                  showMenu={showRowMenu === item.id}
-                  onMenuToggle={setShowRowMenu}
-                />
-              </div>
+            ))}
+            <div className="py-3 text-center w-12 flex-shrink-0">
+              <RowActions
+                item={item}
+                showMenu={showRowMenu === item.id}
+                onMenuToggle={setShowRowMenu}
+              />
             </div>
-          )}
+          </div>
+          )
         </div>
       );
     },
     [
-      // data,
-      // translatedColumns,
-      // selectedRows,
-      // showRowMenu,
-      // handleRowSelect,
-      // renderCellContent,
       data,
       selectedRows,
       handleRowSelect,
@@ -951,8 +945,6 @@ function AdvancedTable<T extends DataItem>({
   );
 
   const renderHeader = useCallback(() => {
-    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-
     return (
       <div ref={headerRef} className={styles.header}>
         {/* Búsqueda - Siempre visible arriba */}
@@ -971,47 +963,30 @@ function AdvancedTable<T extends DataItem>({
             />
           </div>
           {/* Contenedor de controles - Reorganizado para móvil */}
-          <div
-            className={`
-        mt-2 
-        ${isMobile ? "flex flex-wrap gap-2" : "flex justify-end"}
-      `}
-          >
-            {/* Grupo de botones principales */}
-            <div
-              className={`
-          flex items-center gap-1
-          ${isMobile ? "w-full flex-wrap justify-start" : ""}
-        `}
-            >
+          <div className="mt-2 flex flex-wrap gap-2 md:flex-nowrap md:justify-end">
+            <div className="flex items-center gap-1 w-full flex-wrap justify-start md:w-auto md:flex-nowrap">
               {/* Botón de filtros */}
               {enableFilters && (
                 <button
                   className={`
-                flex items-center justify-center px-3 py-2 rounded-md
-                ${
-                  showMobileFilters
-                    ? "bg-gray-100 text-blue-600"
-                    : "text-gray-600 hover:bg-gray-50"
-                }
-                ${isMobile ? "flex-1 min-w-[120px]" : "w-10 h-10 rounded-full"}
-              `}
+                  flex items-center justify-center 
+                  px-3 py-2 rounded-md
+                  flex-1 xs:min-w-[120px]
+                  md:w-10 md:h-10 md:rounded-full md:p-0
+                  ${
+                    showMobileFilters
+                      ? "bg-gray-100 text-blue-600"
+                      : "text-gray-600 hover:bg-gray-50"
+                  }
+                `}
                   onClick={() => setShowMobileFilters(!showMobileFilters)}
                 >
-                  <FontAwesomeIcon
-                    icon={faFilter}
-                    className={isMobile ? "mr-2" : ""}
-                  />
-                  {isMobile && <span>Filtros</span>}
+                  <FontAwesomeIcon icon={faFilter} className="mr-2 md:mr-0" />
+                  <span className="block md:hidden">Filtros</span>
                 </button>
               )}
-
               {/* Selector de columnas */}
-              <div
-                className={`
-            ${isMobile ? "flex-1 min-w-[120px]" : ""}
-          `}
-              >
+              <div className="flex-1 xs:min-w-[120px] md:w-auto">
                 <ColumnVisibilitySelector
                   columns={translatedColumns}
                   defaultVisibleColumns={defaultVisibleColumns}
@@ -1020,49 +995,44 @@ function AdvancedTable<T extends DataItem>({
                     onColumnVisibilityChange?.(newVisibleColumns);
                   }}
                   translations={tableTranslations}
-                  isMobile={isMobile}
                 />
               </div>
 
               {/* Botón de agregar */}
               {onAdd && (
                 <button
-                  className={`
-                flex items-center justify-center bg-blue-600 text-white hover:bg-blue-700
-                ${
-                  isMobile
-                    ? "flex-1 min-w-[120px] px-3 py-2 rounded-md"
-                    : "w-10 h-10 rounded-full"
-                }
-              `}
+                  className="flex items-center justify-center
+                    flex-1 xs:min-w-[120px] px-3 py-2 rounded-md
+                    bg-blue-600 text-white hover:bg-blue-700
+                    md:w-10 md:h-10 md:rounded-full md:p-0
+                  "
                   onClick={onAdd}
                 >
-                  <FontAwesomeIcon
-                    icon={faPlus}
-                    className={isMobile ? "mr-2" : ""}
-                  />
-                  {isMobile && <span>Agregar</span>}
+                  <FontAwesomeIcon icon={faPlus} className="mr-2 md:mr-0" />
+                  <span className="block md:hidden">Agregar</span>
                 </button>
               )}
 
               {/* Menú de opciones */}
               <button
                 className={`
-              flex items-center justify-center hover:bg-gray-50
-              ${
-                isMobile
-                  ? "flex-1 min-w-[120px] px-3 py-2 rounded-md"
-                  : "w-10 h-10 rounded-full"
-              }
-              ${showTableMenu ? "bg-gray-100 text-blue-600" : "text-gray-600"}
-            `}
+                  flex items-center justify-center
+                  flex-1 xs:min-w-[120px] px-3 py-2 rounded-md
+                  hover:bg-gray-50
+                  md:w-10 md:h-10 md:rounded-full md:p-0
+                  ${
+                    showTableMenu
+                      ? "bg-gray-100 text-blue-600"
+                      : "text-gray-600"
+                  }
+                `}
                 onClick={() => setShowTableMenu(!showTableMenu)}
               >
                 <FontAwesomeIcon
                   icon={faEllipsisVertical}
-                  className={isMobile ? "mr-2" : ""}
+                  className="mr-2 md:mr-0"
                 />
-                {isMobile && <span>Opciones</span>}
+                <span className="block md:hidden">Opciones</span>
               </button>
             </div>
           </div>
@@ -1080,12 +1050,7 @@ function AdvancedTable<T extends DataItem>({
                 }
               )}
             >
-              <div
-                className={`
-              flex 
-              ${isMobile ? "flex-col gap-2" : "flex-wrap items-center gap-2"}
-            `}
-              >
+              <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center">
                 {renderFilterSection()}
               </div>
             </div>
@@ -1096,10 +1061,7 @@ function AdvancedTable<T extends DataItem>({
         {enableFilters && filters.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2">
             {filters.map((filter, index) => (
-              <div
-                key={index}
-                className="flex items-center bg-gray-100 text-primary text-sm rounded-full px-3 py-1"
-              >
+              <div key={index} className="flex items-center bg-gray-100 text-primary text-sm rounded-full px-3 py-1">
                 <span className="mr-2">
                   {
                     translatedColumns.find((col) => col.key === filter.column)
@@ -1227,8 +1189,6 @@ function AdvancedTable<T extends DataItem>({
   return (
     <TableContainer>
       {(containerWidth) => {
-        const isMobile =
-          typeof window !== "undefined" && window.innerWidth <= 768;
         return (
           <div className={styles.tableContainer}>
             {/* Overlay */}
@@ -1242,12 +1202,16 @@ function AdvancedTable<T extends DataItem>({
             {/* Table Body */}
             <div
               className={clsx(styles.tableBody, {
-                [styles.editing]: isEditing && !isMobile,
+                [styles.editing]: isEditing,
                 [styles.hasFilters]: filters.length > 0,
               })}
             >
-              {!isMobile && renderDesktopView(containerWidth)}
-              {isMobile && renderMobileView()}
+              {/* Vista Móvil */}
+              <div className="block md:hidden">{renderMobileView()}</div>
+              {/* Vista Desktop */}
+              <div className="hidden md:block">
+                {renderDesktopView(containerWidth)}
+              </div>
             </div>
             {/* Footer */}
             <div className={styles.footer} style={{ width: containerWidth }}>

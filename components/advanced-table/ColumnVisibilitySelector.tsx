@@ -21,7 +21,6 @@ interface ColumnVisibilitySelectorProps<T extends DataItem> {
   defaultVisibleColumns?: string[];
   onChange: (visibleColumns: string[]) => void;
   translations: TableTranslations;
-  isMobile?: boolean;
 }
 
 const ColumnVisibilitySelector = <T extends DataItem>({
@@ -29,7 +28,6 @@ const ColumnVisibilitySelector = <T extends DataItem>({
   defaultVisibleColumns,
   onChange,
   translations,
-  isMobile = false,
 }: ColumnVisibilitySelectorProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility[]>(
@@ -37,7 +35,6 @@ const ColumnVisibilitySelector = <T extends DataItem>({
   );
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Inicializar estado de visibilidad de columnas
   useEffect(() => {
     const initialVisibility = columns.map((column) => ({
       key: String(column.key),
@@ -51,7 +48,6 @@ const ColumnVisibilitySelector = <T extends DataItem>({
     console.log(JSON.stringify(translations, null, 2));
   }, [columns, defaultVisibleColumns, translations]);
 
-  // Manejar clics fuera del menú
   useEffect(() => {
     if (!isOpen) return;
 
@@ -61,7 +57,6 @@ const ColumnVisibilitySelector = <T extends DataItem>({
       }
     };
 
-    // Usar requestAnimationFrame para asegurarnos de que el DOM está listo
     requestAnimationFrame(() => {
       document.addEventListener("mousedown", handleClickOutside);
     });
@@ -117,11 +112,8 @@ const ColumnVisibilitySelector = <T extends DataItem>({
         type="button"
         className={`
           flex items-center justify-center
-          ${
-            isMobile
-              ? "w-full px-3 py-2 rounded-md text-left"
-              : "w-10 h-10 rounded-full"
-          }
+          w-full px-3 py-2 rounded-md text-left
+          md:w-10 md:h-10 md:rounded-full md:p-0
           ${
             isOpen
               ? "bg-gray-100 text-blue-600"
@@ -131,16 +123,19 @@ const ColumnVisibilitySelector = <T extends DataItem>({
         onClick={() => setIsOpen(!isOpen)}
         aria-label={translations.columnVisibility?.buttonTitle}
       >
-        <FontAwesomeIcon icon={faColumns} className={isMobile ? "mr-2" : ""} />
-        {isMobile && <span>{translations.columnVisibility?.buttonTitle}</span>}
+        <FontAwesomeIcon icon={faColumns} className="mr-2 md:mr-0" />
+        <span className="block md:hidden">
+          {translations.columnVisibility?.buttonTitle}
+        </span>
       </button>
 
       {isOpen && (
         <div
-          className={`
-          fixed md:absolute bg-white rounded-md shadow-lg z-50 border border-gray-200
-          ${isMobile ? "fixed inset-x-0 mx-4 mt-1" : "right-0 mt-2 w-64"}
-        `}
+          className="
+          fixed inset-x-0 mx-4 mt-1
+          bg-white rounded-md shadow-lg z-50 border border-gray-200
+          md:inset-x-auto md:mx-0
+          md:absolute md:right-0 md:mt-2 md:w-64"
           role="dialog"
           aria-label={translations.columnVisibility.title}
         >
@@ -174,12 +169,7 @@ const ColumnVisibilitySelector = <T extends DataItem>({
               </button>
             </div>
           </div>
-          <div
-            className={`
-            overflow-y-auto bg-white
-            ${isMobile ? "max-h-[50vh]" : "max-h-64"}
-          `}
-          >
+          <div className="overflow-y-auto bg-white max-h-[50vh] md:max-h-64">
             {columnVisibility?.map((col) => (
               <div
                 key={col.key}
