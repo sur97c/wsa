@@ -30,11 +30,17 @@ import {
   getDefaultTranslations,
   TABLE_CONSTANTS,
 } from "./advancedTableDefinition";
+// import { TABLE_CONSTANTS, type AdvancedTableProps, type DataItem } from "./types/table.types"
+// import { getDefaultTranslations } from "./types/translation.types"
+// import type { Filter, FilterOperator } from "./types/filter.types"
+// import type { Alignment, Column, ColumnType } from "./types/column.types"
+
 import TableContainer from "@components/table-container/TableContainer";
 import { CSSTransition } from "react-transition-group";
 import styles from "./AdvancedTable.module.scss";
 import clsx from "clsx";
 import ColumnVisibilitySelector from "./ColumnVisibilitySelector";
+import TableHeader from "./components/core/TableHeader"
 
 const { VISIBLE_HEIGHT, HEADER_HEIGHT, ROW_HEIGHT } = TABLE_CONSTANTS;
 
@@ -764,56 +770,56 @@ function AdvancedTable<T extends DataItem>({
     ]
   );
 
-  const renderTableHeader = useCallback(
-    () => (
-      <div
-        className="flex text-gray-600 text-sm bg-gray-100 tableHeader"
-        style={{
-          height: `${HEADER_HEIGHT}px`,
-          filter: isEditing ? "blur(0.1px)" : "none",
-          pointerEvents: isEditing ? "none" : "auto",
-        }}
-      >
-        <div className="py-3 text-center w-12 flex-shrink-0">
-          <input
-            type="checkbox"
-            checked={allSelected}
-            onChange={handleSelectAll}
-          />
-        </div>
-        {visibleTranslatedColumns.map((column) => (
-          <div
-            key={String(column.key)}
-            className={`py-3 px-2 cursor-pointer flex items-center justify-center text-center`}
-            style={{ width: column.width || "auto" }}
-            onClick={() => handleSort(column.key)}
-          >
-            <div className="flex items-center justify-center">
-              {column.label}
-              {sortColumn === column.key && (
-                <FontAwesomeIcon
-                  icon={faChevronDown}
-                  className={`ml-1 ${
-                    sortDirection === "asc" ? "transform rotate-180" : ""
-                  }`}
-                />
-              )}
-            </div>
-          </div>
-        ))}
-        <div className="py-3 text-center w-12 flex-shrink-0"></div>
-      </div>
-    ),
-    [
-      allSelected,
-      handleSelectAll,
-      visibleTranslatedColumns,
-      handleSort,
-      sortColumn,
-      sortDirection,
-      isEditing,
-    ]
-  );
+  // const renderTableHeader = useCallback(
+  //   () => (
+  //     <div
+  //       className="flex text-gray-600 text-sm bg-gray-100 tableHeader"
+  //       style={{
+  //         height: `${HEADER_HEIGHT}px`,
+  //         filter: isEditing ? "blur(0.1px)" : "none",
+  //         pointerEvents: isEditing ? "none" : "auto",
+  //       }}
+  //     >
+  //       <div className="py-3 text-center w-12 flex-shrink-0">
+  //         <input
+  //           type="checkbox"
+  //           checked={allSelected}
+  //           onChange={handleSelectAll}
+  //         />
+  //       </div>
+  //       {visibleTranslatedColumns.map((column) => (
+  //         <div
+  //           key={String(column.key)}
+  //           className={`py-3 px-2 cursor-pointer flex items-center justify-center text-center`}
+  //           style={{ width: column.width || "auto" }}
+  //           onClick={() => handleSort(column.key)}
+  //         >
+  //           <div className="flex items-center justify-center">
+  //             {column.label}
+  //             {sortColumn === column.key && (
+  //               <FontAwesomeIcon
+  //                 icon={faChevronDown}
+  //                 className={`ml-1 ${
+  //                   sortDirection === "asc" ? "transform rotate-180" : ""
+  //                 }`}
+  //               />
+  //             )}
+  //           </div>
+  //         </div>
+  //       ))}
+  //       <div className="py-3 text-center w-12 flex-shrink-0"></div>
+  //     </div>
+  //   ),
+  //   [
+  //     allSelected,
+  //     handleSelectAll,
+  //     visibleTranslatedColumns,
+  //     handleSort,
+  //     sortColumn,
+  //     sortDirection,
+  //     isEditing,
+  //   ]
+  // );
 
   const renderFilterOperatorSelect = useCallback(() => {
     if (!selectedColumn) return null;
@@ -1158,7 +1164,25 @@ function AdvancedTable<T extends DataItem>({
   const renderDesktopView = useCallback(
     (containerWidth: number) => (
       <div className={styles.scrollContainer}>
-        {renderTableHeader()}
+        <TableHeader
+          columns={visibleTranslatedColumns}
+          sortColumn={sortColumn}
+          sortDirection={sortDirection}
+          handleSort={handleSort}
+          translations={tableTranslations}
+          enableFilters={enableFilters}
+          showMobileFilters={showMobileFilters}
+          setShowMobileFilters={setShowMobileFilters}
+          filterValue={filterValue}
+          setFilterValue={setFilterValue}
+          selectedColumn={selectedColumn}
+          setSelectedColumn={setSelectedColumn}
+          selectedOperator={selectedOperator}
+          setSelectedOperator={setSelectedOperator}
+          selectOptions={selectOptions}
+          setSelectOptions={setSelectOptions}
+        />
+        {/* {renderTableHeader()} */}
         <div
           style={{
             width: containerWidth,

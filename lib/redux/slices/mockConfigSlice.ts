@@ -2,7 +2,7 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-export type EntityName = 'users' | 'clients' | 'policies' | 'claims' | 'quotes'
+export type EntityName = 'tableViews' | 'users' | 'clients' | 'policies' | 'claims' | 'quotes'
 
 interface MockConfigState {
   useMockData: boolean
@@ -26,6 +26,7 @@ const getInitialMockConfig = (): boolean => {
 const initialState: MockConfigState = {
   useMockData: getInitialMockConfig(),
   mockEntities: {
+    tableViews: getInitialMockConfig(),
     users: getInitialMockConfig(),
     clients: getInitialMockConfig(),
     policies: getInitialMockConfig(),

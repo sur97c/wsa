@@ -71,7 +71,7 @@ export const loginUser = createAsyncThunk(
 
             console.log('User profile fetched:', userProfile) // Log para debug
             return authState
-        } catch (error) {
+        } catch (error: FirebaseError) {
             if (error instanceof FirebaseError) {
                 let message;
                 switch (error.code) {
@@ -116,7 +116,7 @@ export const recoverAccess = createAsyncThunk(
             await delay(DELAY_TIME);
             await sendPasswordResetEmail(auth, email);
             return 'Email de recuperación enviado';
-        } catch (error) {
+        } catch (error: FirebaseError) {
             if (error instanceof FirebaseError) {
                 let message;
                 switch (error.code) {

@@ -8,7 +8,7 @@ import { logoutUser, updateLastActivity, checkUserStatus } from '@lib/redux/slic
 import { useAuthListener } from '@hooks/useAuthListener.ts'
 import { useSafeRouter } from "@hooks/useSafeRouter"
 import { useTranslations } from '@hooks/useTranslations'
-import Notification from '@components/notification/Notification'
+import Notification from '@components/ui/notification/Notification'
 import { faClock, faUserSlash } from '@fortawesome/free-solid-svg-icons'
 
 export function AuthStateListener({ children }: { children: React.ReactNode }) {
